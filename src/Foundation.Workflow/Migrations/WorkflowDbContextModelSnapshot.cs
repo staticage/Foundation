@@ -26,6 +26,8 @@ namespace Foundation.Workflow.Migrations
 
                     b.Property<DateTime?>("EndTime");
 
+                    b.Property<string>("PublishedEvents");
+
                     b.Property<DateTime>("StartTime");
 
                     b.Property<int>("Status");
@@ -51,6 +53,10 @@ namespace Foundation.Workflow.Migrations
                     b.Property<DateTime>("StartTime");
 
                     b.Property<int>("Status");
+
+                    b.Property<int>("Version");
+
+                    b.Property<string>("WorkflowDefinitionId");
 
                     b.HasKey("Id");
 

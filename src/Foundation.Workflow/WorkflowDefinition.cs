@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -151,13 +150,14 @@ namespace Foundation.Workflow
                 if (workflow.Status == WorkflowStatus.Running)
                 {
                     var next = workflow.GetNextExecutionPointer();
-                    next.PublishedEvents.Add(evt);
+                    
                     if (next == null)
                     {
                         workflow.Complete();
                     }
                     else
                     {
+                        next.PublishedEvents.Add(evt);
                         var context = new StepExecutionContext
                         {
                             WorkflowDefinition = definition,
@@ -212,144 +212,11 @@ namespace Foundation.Workflow
         }
     }
 
-    public interface IWorkflowEngine
-    {
-        Task<Guid> StartWorkflow(string name, int version = 0);
-        Task PublishActionEvent(Guid workflowId, WorkflowActionEvent evt);
-        Task RegisterWorkflowDefinition(string name, WorkflowDefinition definition);
-    }
-
-    public interface IWorkflowRepository
-    {
-        Task AddWorkflowDefinition(string workflowDefinitionId, WorkflowDefinition definition);
-        Task<WorkflowDefinition> GetWorkflowDefinition(string name, int version);
-        Task AddWorkflow(Workflow workflow);
-        Task<Workflow> GetWorkflow(Guid workflowId);
-    }
-
     public interface IWorkflowDefinitionRegistry
     {
     }
 
     public class WorkflowActionEvent
     {
-    }
-
-    public class WorkflowDefinitionBuilder
-    {
-        private List<Action<WorkflowDefinition>> _actions = new List<Action<WorkflowDefinition>>();
-
-        public WorkflowDefinitionBuilder Name(string workflowDefinitionName)
-        {
-            _actions.Add(x => x.Description = workflowDefinitionName);
-            return this;
-        }
-
-        public WorkflowDefinition Build()
-        {
-            var definition = new WorkflowDefinition();
-            _actions.ForEach(action => action(definition));
-            return definition;
-        }
-
-        public StepDefinitionBuilder AddStep<StepBody>(string stepId) where StepBody : IStepBody
-        {
-            return new StepDefinitionBuilder(this, typeof(StepBody)).Id(stepId);
-        }
-
-
-        public class StepDefinitionBuilder
-        {
-            private readonly WorkflowDefinitionBuilder _workflowDefinitionBuilder;
-            private StepDefinition _stepDefinition;
-
-
-            public StepDefinitionBuilder(WorkflowDefinitionBuilder workflowDefinitionBuilder, Type bodyType)
-            {
-                _workflowDefinitionBuilder = workflowDefinitionBuilder;
-                _stepDefinition = new StepDefinition
-                {
-                    BodyType = bodyType
-                };
-                _workflowDefinitionBuilder._actions.Add(x => x.Steps.Add(_stepDefinition));
-            }
-
-            public StepDefinitionBuilder Id(string stepId)
-            {
-                _stepDefinition.Id = stepId;
-                return this;
-            }
-
-            public EventActionBuilder ForAction(string actionName)
-            {
-                var action = new EventActionDefinition(actionName);
-                _stepDefinition.Actions.Add(action);
-                return new EventActionBuilder(this, action);
-            }
-        }
-
-        public class EventActionBuilder
-        {
-            private readonly StepDefinitionBuilder _stepDefinitionBuilder;
-            private readonly EventActionDefinition _eventActionDefinition;
-
-            public EventActionBuilder(StepDefinitionBuilder stepDefinitionBuilder, EventActionDefinition eventActionDefinition)
-            {
-                _stepDefinitionBuilder = stepDefinitionBuilder;
-                _eventActionDefinition = eventActionDefinition;
-            }
-
-            public StepDefinitionBuilder Returns(ExecutionResult executionResult)
-            {
-                _eventActionDefinition.Action = new ReturnsEventAction(executionResult);
-                return _stepDefinitionBuilder;
-            }
-
-            public StepDefinitionBuilder Do(Expression<Func<IStepExecutionContext, ExecutionResult>> expression)
-            {
-                _eventActionDefinition.Action = new ExpressionEventAction(expression);
-                return _stepDefinitionBuilder;
-            }
-        }
-    }
-
-    public class EventActionDefinition
-    {
-        public string ActionName { get; private set; }
-        public IEventAction Action { get; set; }
-
-        public EventActionDefinition(string actionName)
-        {
-            ActionName = actionName;
-        }
-    }
-
-    public interface IEventAction
-    {
-        ExecutionResult Act(IStepExecutionContext context);
-    }
-
-    public class ReturnsEventAction : IEventAction
-    {
-        private readonly ExecutionResult _executionResult;
-
-        public ReturnsEventAction(ExecutionResult executionResult)
-        {
-            _executionResult = executionResult;
-        }
-
-        public ExecutionResult Act(IStepExecutionContext context) => _executionResult;
-    }
-
-    public class ExpressionEventAction : IEventAction
-    {
-        private readonly Expression<Func<IStepExecutionContext, ExecutionResult>> _expression;
-
-        public ExpressionEventAction(Expression<Func<IStepExecutionContext, ExecutionResult>> expression)
-        {
-            _expression = expression;
-        }
-
-        public ExecutionResult Act(IStepExecutionContext context) => _expression.Compile()(context);
     }
 }
