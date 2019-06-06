@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
@@ -21,16 +23,22 @@ namespace Foundation.Workflow.Tests
 
             var services = new ServiceCollection();
             services.AddScoped<HelloWorldStepBody>();
+            services.AddScoped<IWorkflowRepository, WorkflowRepository>();
+            services.AddDbContext<WorkflowDbContext>(opt =>
+            {
+                opt.UseSqlServer("Server=62.234.214.209,1445;Database=rebus_lyh;User Id=sa;Password=sasa@123;",
+                    options => options.MigrationsAssembly(typeof(WorkflowDbContext).Assembly.FullName));
+            });
             _provider = services.BuildServiceProvider();
         }
 
         [Test]
-        public void Should_execute_steps_one_by_one()
+        public async Task Should_execute_steps_one_by_one()
         {
-            IWorkflowEngine engine = new WorkflowEngine(new WorkflowRepository(), new WorkflowExecutor(_provider));
+            IWorkflowEngine engine = new WorkflowEngine(_provider.GetService<IWorkflowRepository>(), new WorkflowExecutor(_provider));
             engine.RegisterWorkflowDefinition("Workflow1", definition);
 
-            var workflowId =  engine.StartWorkflow("Workflow1");
+            var workflowId =  await engine.StartWorkflow("Workflow1");
         }
 
         [Test]

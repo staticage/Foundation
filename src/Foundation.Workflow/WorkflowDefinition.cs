@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,6 +9,8 @@ namespace Foundation.Workflow
 {
     public class WorkflowDefinition
     {
+        public string Id { get; set; }
+        public int Version { get; set; }
         public string Description { get; set; }
         public List<StepDefinition> Steps { get; set; } = new List<StepDefinition>();
 
@@ -18,12 +21,6 @@ namespace Foundation.Workflow
         }
     }
 
-    public class StepDefinition
-    {
-        public string Id { get; set; }
-        public Type BodyType { get; set; }
-    }
-
     public class StepExecutionContext : IStepExecutionContext
     {
         public WorkflowDefinition WorkflowDefinition { get; set; }
@@ -31,40 +28,6 @@ namespace Foundation.Workflow
         public ExecutionPointer ExecutionPointer { get; set; }
     }
 
-    public interface IStepExecutionContext
-    {
-        WorkflowDefinition WorkflowDefinition { get; }
-        Workflow Workflow { get; }
-        ExecutionPointer ExecutionPointer { get; }
-    }
-
-    public class ExecutionResult
-    {
-        public bool Proceed { get; set; }
-        public string EventName { get; set; }
-        public string EventKey { get; set; }
-        public string NextStepId { get; set; }
-
-        public static ExecutionResult Next(string nextStepId = null)
-        {
-            return new ExecutionResult {Proceed = true, NextStepId = nextStepId};
-        }
-
-        public static ExecutionResult WaitForEvent(string eventName, string eventKey)
-        {
-            return new ExecutionResult
-            {
-                EventName = eventName,
-                EventKey = eventKey
-            };
-        }
-    }
-
-
-    public interface IStepBody
-    {
-        Task<ExecutionResult> RunAsync(IStepExecutionContext context);
-    }
 
     public enum ExecutionPointerStatus
     {
@@ -74,30 +37,39 @@ namespace Foundation.Workflow
 
     public enum WorkflowStatus
     {
-        Completed = 5,
-        Running
+        Running = 0,
+        Completed = 1,
+        Terminated = 2
     }
 
     public class Workflow
     {
-        public string Id { get; set; }
-        private readonly WorkflowDefinition _definition;
-        public List<ExecutionPointer> ExecutionPointers { get; set; }
+        public Guid Id { get; set; }
+        public List<ExecutionPointer> ExecutionPointers { get; set; } = new List<ExecutionPointer>();
         public WorkflowStatus Status { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime? EndTime { get; set; }
+        public string WorkflowDefinitionId { get; set; }
+        public int Version { get; set; }
 
-        public Workflow(string id,WorkflowDefinition definition)
+        private Workflow()
         {
-            Id = id;
-            _definition = definition;
+        }
+
+        public static Workflow Start(Guid id, WorkflowDefinition definition)
+        {
+            var workflow = new Workflow
+            {
+                Id = id,
+                StartTime = DateTime.Now,
+                WorkflowDefinitionId = definition.Id,
+                Version = definition.Version
+            };
+            return workflow;
         }
 
         public ExecutionPointer StartStep(string stepDefinitionId)
         {
-            if (_definition.Steps.All(x => x.Id != stepDefinitionId))
-            {
-                throw new InvalidOperationException($"Invalid stepId {stepDefinitionId}");
-            }
-
             var executionPointer = new ExecutionPointer
             {
                 Id = Guid.NewGuid(),
@@ -105,7 +77,7 @@ namespace Foundation.Workflow
                 StepId = stepDefinitionId,
                 Status = ExecutionPointerStatus.Running,
             };
-            
+
             ExecutionPointers.Add(executionPointer);
             return executionPointer;
         }
@@ -122,13 +94,15 @@ namespace Foundation.Workflow
                 throw new InvalidOperationException("Cannot complete a no-running workflow");
             }
 
+            EndTime = DateTime.Now;
             Status = WorkflowStatus.Completed;
         }
     }
 
     public interface IWorkflowExecutor
     {
-        Task ExecuteWorkflow(WorkflowDefinition definition, Workflow workflow);
+        Task ExecuteWorkflow(WorkflowDefinition definition, Guid workflowId);
+        Task ExecuteWorkflow(WorkflowDefinition definition, Guid workflowId, WorkflowActionEvent evt);
     }
 
     public class WorkflowExecutor : IWorkflowExecutor
@@ -140,10 +114,11 @@ namespace Foundation.Workflow
             _serviceProvider = serviceProvider;
         }
 
-        public async Task ExecuteWorkflow(WorkflowDefinition definition, Workflow workflow)
+        public async Task ExecuteWorkflow(WorkflowDefinition definition, Guid workflowId)
         {
             using (var scope = _serviceProvider.CreateScope())
             {
+                var workflow = await scope.ServiceProvider.GetService<IWorkflowRepository>().GetWorkflow(workflowId);
                 if (workflow.Status == WorkflowStatus.Running)
                 {
                     var next = workflow.GetNextExecutionPointer();
@@ -163,8 +138,41 @@ namespace Foundation.Workflow
                         await ExecuteExecutionPointer(scope, context);
                     }
                 }
+
+                await scope.ServiceProvider.GetService<WorkflowDbContext>().SaveChangesAsync();
             }
         }
+
+        public async Task ExecuteWorkflow(WorkflowDefinition definition, Guid workflowId, WorkflowActionEvent evt)
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var workflow = await scope.ServiceProvider.GetService<IWorkflowRepository>().GetWorkflow(workflowId);
+                if (workflow.Status == WorkflowStatus.Running)
+                {
+                    var next = workflow.GetNextExecutionPointer();
+                    next.PublishedEvents.Add(evt);
+                    if (next == null)
+                    {
+                        workflow.Complete();
+                    }
+                    else
+                    {
+                        var context = new StepExecutionContext
+                        {
+                            WorkflowDefinition = definition,
+                            Workflow = workflow,
+                            ExecutionPointer = next
+                        };
+
+                        await ExecuteExecutionPointer(scope, context);
+                    }
+                }
+
+                await scope.ServiceProvider.GetService<WorkflowDbContext>().SaveChangesAsync();
+            }
+        }
+
 
         public async Task ExecuteExecutionPointer(IServiceScope scope, IStepExecutionContext context)
         {
@@ -174,8 +182,7 @@ namespace Foundation.Workflow
             if (result.Proceed)
             {
                 context.ExecutionPointer.Complete();
-                    
-                
+
                 var nextStepId = result.NextStepId ?? context.WorkflowDefinition.GetNextStepId(context.ExecutionPointer.StepId);
                 if (nextStepId != null)
                 {
@@ -205,93 +212,23 @@ namespace Foundation.Workflow
         }
     }
 
-    public class ExecutionPointer
-    {
-        public Guid Id { get; set; }
-        public string StepId { get; set; }
-        public ExecutionPointerStatus Status { get; set; }
-        public DateTime? EndTime { get; set; }
-        public DateTime StartTime { get; set; }
-
-        public void Complete()
-        {
-            Status = ExecutionPointerStatus.Completed;
-            EndTime = DateTime.Now;
-        }
-    }
-
     public interface IWorkflowEngine
     {
-        Task<string> StartWorkflow(string workflowDefinitionId, int version = 0);
-        Task PublishActionEvent();
+        Task<Guid> StartWorkflow(string name, int version = 0);
+        Task PublishActionEvent(Guid workflowId, WorkflowActionEvent evt);
         Task RegisterWorkflowDefinition(string name, WorkflowDefinition definition);
-    }
-
-    public class WorkflowEngine : IWorkflowEngine
-    {
-        private readonly IWorkflowRepository _repository;
-        private readonly IWorkflowExecutor _executor;
-
-        public WorkflowEngine(IWorkflowRepository repository, IWorkflowExecutor executor)
-        {
-            _repository = repository;
-            _executor = executor;
-        }
-
-
-        public async Task<string> StartWorkflow(string workflowDefinitionId, int version = 0)
-        {
-            var definition = await _repository.GetWorkflowDefinition(workflowDefinitionId, version);
-            var workflowId = Guid.NewGuid().ToString();
-            var workflow = BuildWorkflow(workflowId, definition);
-            workflow.StartStep(definition.Steps.First().Id);
-            _executor.ExecuteWorkflow(definition, workflow);
-            return workflowId;
-        }
-
-        private Workflow BuildWorkflow(string workflowId, WorkflowDefinition definition)
-        {
-            return new Workflow(workflowId,definition);
-        }
-
-        public Task PublishActionEvent()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RegisterWorkflowDefinition(string name, WorkflowDefinition definition)
-        {
-            return _repository.AddWorkflowDefinition(name, definition);
-        }
     }
 
     public interface IWorkflowRepository
     {
         Task AddWorkflowDefinition(string workflowDefinitionId, WorkflowDefinition definition);
-        Task<WorkflowDefinition> GetWorkflowDefinition(string workflowDefinitionId, int version);
+        Task<WorkflowDefinition> GetWorkflowDefinition(string name, int version);
+        Task AddWorkflow(Workflow workflow);
+        Task<Workflow> GetWorkflow(Guid workflowId);
     }
 
-    public class WorkflowRepository : IWorkflowRepository
+    public interface IWorkflowDefinitionRegistry
     {
-        IDictionary<string, List<WorkflowDefinition>> _definitions = new Dictionary<string, List<WorkflowDefinition>>();
-
-        public Task AddWorkflowDefinition(string workflowDefinitionId, WorkflowDefinition definition)
-        {
-            if (!_definitions.ContainsKey(workflowDefinitionId))
-            {
-                _definitions.Add(workflowDefinitionId, new List<WorkflowDefinition>());
-            }
-
-            _definitions[workflowDefinitionId].Add(definition);
-            return Task.CompletedTask;
-        }
-
-        public Task<WorkflowDefinition> GetWorkflowDefinition(string workflowDefinitionId, int version)
-        {
-            var definitions = _definitions[workflowDefinitionId];
-            var definition = version > 0 ? definitions[version - 1] : definitions.Last();
-            return Task.FromResult(definition);
-        }
     }
 
     public class WorkflowActionEvent
@@ -342,6 +279,77 @@ namespace Foundation.Workflow
                 _stepDefinition.Id = stepId;
                 return this;
             }
+
+            public EventActionBuilder ForAction(string actionName)
+            {
+                var action = new EventActionDefinition(actionName);
+                _stepDefinition.Actions.Add(action);
+                return new EventActionBuilder(this, action);
+            }
         }
+
+        public class EventActionBuilder
+        {
+            private readonly StepDefinitionBuilder _stepDefinitionBuilder;
+            private readonly EventActionDefinition _eventActionDefinition;
+
+            public EventActionBuilder(StepDefinitionBuilder stepDefinitionBuilder, EventActionDefinition eventActionDefinition)
+            {
+                _stepDefinitionBuilder = stepDefinitionBuilder;
+                _eventActionDefinition = eventActionDefinition;
+            }
+
+            public StepDefinitionBuilder Returns(ExecutionResult executionResult)
+            {
+                _eventActionDefinition.Action = new ReturnsEventAction(executionResult);
+                return _stepDefinitionBuilder;
+            }
+
+            public StepDefinitionBuilder Do(Expression<Func<IStepExecutionContext, ExecutionResult>> expression)
+            {
+                _eventActionDefinition.Action = new ExpressionEventAction(expression);
+                return _stepDefinitionBuilder;
+            }
+        }
+    }
+
+    public class EventActionDefinition
+    {
+        public string ActionName { get; private set; }
+        public IEventAction Action { get; set; }
+
+        public EventActionDefinition(string actionName)
+        {
+            ActionName = actionName;
+        }
+    }
+
+    public interface IEventAction
+    {
+        ExecutionResult Act(IStepExecutionContext context);
+    }
+
+    public class ReturnsEventAction : IEventAction
+    {
+        private readonly ExecutionResult _executionResult;
+
+        public ReturnsEventAction(ExecutionResult executionResult)
+        {
+            _executionResult = executionResult;
+        }
+
+        public ExecutionResult Act(IStepExecutionContext context) => _executionResult;
+    }
+
+    public class ExpressionEventAction : IEventAction
+    {
+        private readonly Expression<Func<IStepExecutionContext, ExecutionResult>> _expression;
+
+        public ExpressionEventAction(Expression<Func<IStepExecutionContext, ExecutionResult>> expression)
+        {
+            _expression = expression;
+        }
+
+        public ExecutionResult Act(IStepExecutionContext context) => _expression.Compile()(context);
     }
 }
