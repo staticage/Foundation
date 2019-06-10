@@ -103,6 +103,8 @@ namespace Foundation.Workflow
             else
             {
                 context.ExecutionPointer.Status = ExecutionPointerStatus.Running;
+                context.ExecutionPointer.EventName = result.EventName;
+                context.ExecutionPointer.EventKey = result.EventKey;
             }
         }
 

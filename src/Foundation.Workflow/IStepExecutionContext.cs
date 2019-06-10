@@ -5,5 +5,6 @@ namespace Foundation.Workflow
         WorkflowDefinition WorkflowDefinition { get; }
         Workflow Workflow { get; }
         ExecutionPointer ExecutionPointer { get; }
+        StepDefinition StepDefinition { get; } 
     }
 }

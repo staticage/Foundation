@@ -15,8 +15,8 @@ namespace Foundation.Workflow.Tests
         [SetUp]
         public void Setup()
         {
-            var builder = new WorkflowDefinitionBuilder();
-            builder.AddStep<HelloWorldStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E");
+            var builder = new WorkflowDefinitionBuilder("Workflow1");
+            builder.AddStep<HelloWorldStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E").ForAction("同意").Returns(ExecutionResult.Next());
             definition = builder.Build();
             definition.Steps.Single().Id.Should().Be("A79047B7-1554-453B-8044-ABEF000F8B6E");
             definition.Steps.Single().BodyType.Should().Be(typeof(HelloWorldStepBody));
@@ -32,19 +32,35 @@ namespace Foundation.Workflow.Tests
             _provider = services.BuildServiceProvider();
         }
 
+        
+        
         [Test]
         public async Task Should_execute_steps_one_by_one()
         {
             IWorkflowEngine engine = new WorkflowEngine(_provider.GetService<IWorkflowRepository>(), new WorkflowExecutor(_provider));
-            engine.RegisterWorkflowDefinition("Workflow1", definition);
+            engine.Registrar.RegisterWorkflowDefinition(definition);
 
             var workflowId =  await engine.StartWorkflow("Workflow1");
+            var workflow = await GetService<IWorkflowRepository>().GetWorkflow(workflowId);
+            workflow.Status.Should().Be(WorkflowStatus.Running);
+            await engine.PublishActionEvent(workflowId, new WorkflowActionEvent
+            {
+                Action = "同意"
+            });
+            
+            workflow = await GetService<IWorkflowRepository>().GetWorkflow(workflowId);
+            workflow.Status.Should().Be(WorkflowStatus.Completed);
+        }
+
+        private T GetService<T>()
+        {
+            return _provider.CreateScope().ServiceProvider.GetService<T>();
         }
 
         [Test]
         public void When_add_a_new_step_it_should_contains_the_step()
         {
-            var builder = new WorkflowDefinitionBuilder();
+            var builder = new WorkflowDefinitionBuilder("Workflow1");
             builder.AddStep<HelloWorldStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E");
             var definition = builder.Build();
             definition.Steps.Single().Id.Should().Be("A79047B7-1554-453B-8044-ABEF000F8B6E");

@@ -7,6 +7,6 @@ namespace Foundation.Workflow
     {
         Task<Guid> StartWorkflow(string name, int version = 0);
         Task PublishActionEvent(Guid workflowId, WorkflowActionEvent evt);
-        Task RegisterWorkflowDefinition(string name, WorkflowDefinition definition);
+        IWorkflowDefinitionRegistrar Registrar { get; }
     }
 }

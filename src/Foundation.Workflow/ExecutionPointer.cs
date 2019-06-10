@@ -10,7 +10,9 @@ namespace Foundation.Workflow
         public ExecutionPointerStatus Status { get; set; }
         public DateTime? EndTime { get; set; }
         public DateTime StartTime { get; set; }
-        public List<WorkflowActionEvent> PublishedEvents { get; set; }
+        public List<WorkflowActionEvent> PublishedEvents { get; set; } = new List<WorkflowActionEvent>();
+        public string EventName { get; set; }
+        public string EventKey { get; set; }
 
         public void Complete()
         {

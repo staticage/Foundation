@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Foundation.Workflow
@@ -30,5 +31,7 @@ namespace Foundation.Workflow
 
     public class WorkflowActionEvent
     {
+        public Guid ActorId { get; set; }
+        public string Action { get; set; }
     }
 }

@@ -8,6 +8,14 @@ namespace Foundation.Workflow
     {
         private List<Action<WorkflowDefinition>> _actions = new List<Action<WorkflowDefinition>>();
 
+        public WorkflowDefinitionBuilder(string id, int version = 1)
+        {
+            _actions.Add(def =>
+            {
+                def.Id = id;
+                def.Version = version;
+            });
+        }
         public WorkflowDefinitionBuilder Name(string workflowDefinitionName)
         {
             _actions.Add(x => x.Description = workflowDefinitionName);
@@ -49,9 +57,9 @@ namespace Foundation.Workflow
                 return this;
             }
 
-            public EventActionBuilder ForAction(string actionName)
+            public EventActionBuilder ForAction(string actionName, params Guid[] actorIds)
             {
-                var action = new EventActionDefinition(actionName);
+                var action = new EventActionDefinition(actionName,actorIds);
                 _stepDefinition.Actions.Add(action);
                 return new EventActionBuilder(this, action);
             }
