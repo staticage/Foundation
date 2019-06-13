@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Autofac;
+﻿using System;
+using System.Threading.Tasks;
 using Foundation.CQRS;
 
 namespace Foundation.Messaging
@@ -11,9 +11,9 @@ namespace Foundation.Messaging
 
     internal class CommandExecutor : ICommandExecutor
     {
-        private readonly ILifetimeScope _lifetimeScope;
+        private readonly IServiceProvider _lifetimeScope;
 
-        public CommandExecutor(ILifetimeScope lifetimeScope)
+        public CommandExecutor(IServiceProvider lifetimeScope)
         {
             _lifetimeScope = lifetimeScope;
         }
@@ -21,7 +21,7 @@ namespace Foundation.Messaging
         public Task Execute(ICommand command)
         {
             var commandHandlerType = typeof(ICommandHandler<>).MakeGenericType(command.GetType());
-            var handler = (dynamic)_lifetimeScope.Resolve(commandHandlerType);
+            var handler = (dynamic)_lifetimeScope.GetService(commandHandlerType);
             return handler.Handle((dynamic)command);
         }
     }

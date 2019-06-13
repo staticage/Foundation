@@ -2,30 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
-using Autofac;
-using Autofac.Features.AttributeFilters;
 using Foundation.CQRS;
-using Foundation.CQRS.EventStores;
-using Foundation.Messaging.ServiceBuses;
 using Foundation.Messaging.ServiceBuses.RebusBus;
-using Foundation.Modules;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Foundation.Messaging
 {
     public class SynchronousBus : IServiceBus
     {
-        private readonly ILifetimeScope _lifetimeScope;
+        private readonly IServiceProvider _lifetimeScope;
 
-        public SynchronousBus(ILifetimeScope lifetimeScope)
+        public SynchronousBus(IServiceProvider lifetimeScope)
         {
             _lifetimeScope = lifetimeScope;
         }
 
         public async Task Send(ICommand command)
         {
-            using (var scope = _lifetimeScope.BeginLifetimeScope())
+            using (var scope = _lifetimeScope.CreateScope())
             {
                 //                using (var transaction = new TransactionScope(
                 //                    TransactionScopeOption.RequiresNew,
@@ -42,9 +37,9 @@ namespace Foundation.Messaging
 
                     
 
-                    await scope.Resolve<ICommandExecutor>().Execute(command);
+                    await scope.ServiceProvider.GetService<ICommandExecutor>().Execute(command);
                     
-                    foreach (var repository in scope.Resolve<IEnumerable<IRepository>>())
+                    foreach (var repository in scope.ServiceProvider.GetServices<IRepository>())
                     {
 //                        using (var transaction = await repository.GetTransactionAsync())
 //                        {
@@ -61,7 +56,7 @@ namespace Foundation.Messaging
 //                        }
                     }
                     
-                    await Task.WhenAll(scope.Resolve<IEnumerable<DbContext>>().Select(x => x.SaveChangesAsync()));
+                    await Task.WhenAll(scope.ServiceProvider.GetServices<DbContext>().Select(x => x.SaveChangesAsync()));
                     
                     //                        transaction.Complete();
                 }
@@ -79,7 +74,7 @@ namespace Foundation.Messaging
         {
             var eventHandlerType = typeof(IEventHandler<>).MakeGenericType(@event.GetType());
             var handlersType = typeof(IEnumerable<>).MakeGenericType(eventHandlerType);
-            dynamic handlers = _lifetimeScope.Resolve(handlersType);
+            dynamic handlers = _lifetimeScope.GetService(handlersType);
             foreach (var handler in handlers)
             {
                 handler.Handle((dynamic)@event);
@@ -90,7 +85,7 @@ namespace Foundation.Messaging
         public Task<TResult> Get<TResult>(IQuery<TResult> query) where TResult : class
         {
             var handlerType = typeof(IQueryHandler<,>).MakeGenericType(query.GetType(), typeof(TResult));
-            dynamic handler = _lifetimeScope.Resolve(handlerType);
+            dynamic handler = _lifetimeScope.GetService(handlerType);
             return handler.Handle((dynamic)query);
         }
 

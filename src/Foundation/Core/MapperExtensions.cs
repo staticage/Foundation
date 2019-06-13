@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using AutoMapper;
-using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 
 namespace Foundation.Core
 {

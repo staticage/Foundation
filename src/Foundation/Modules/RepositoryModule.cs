@@ -1,14 +1,11 @@
-﻿using Autofac;
-using Foundation.CQRS.EventStores;
-
-namespace Foundation.Modules
+﻿namespace Foundation.Modules
 {
-    public class RepositoryModule : Module
-    {
-        protected override void Load(ContainerBuilder builder)
-        {
-            builder.RegisterType<EventStoreEventPublisher>().As<IEventStorePublisher>().InstancePerLifetimeScope();
-            
-        }
-    }
+//    public class RepositoryModule : Module
+//    {
+//        protected override void Load(ContainerBuilder builder)
+//        {
+//            builder.RegisterType<EventStoreEventPublisher>().As<IEventStorePublisher>().InstancePerLifetimeScope();
+//            
+//        }
+//    }
 }

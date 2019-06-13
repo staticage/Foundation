@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Transactions;
-using Autofac;
 using Foundation.Core;
 using Foundation.CQRS;
-using Foundation.CQRS.EventStores;
 using Foundation.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Rebus.Messages;
 using Rebus.Pipeline;
 using Rebus.Transport;
@@ -40,12 +38,12 @@ namespace Foundation.Messaging.ServiceBuses.RebusBus.Steps
     {
         public async Task Process(IncomingStepContext context, Func<Task> next)
         {
-            var scope = context.Load<ITransactionContext>()?.Items["current-autofac-lifetime-scope"] as ILifetimeScope;
-            foreach (var dbContext in scope.Resolve<IEnumerable<DbContext>>())
+            var scope = context.Load<ITransactionContext>()?.Items["current-autofac-lifetime-scope"] as IServiceProvider;
+            foreach (var dbContext in scope.GetServices<DbContext>())
             {
                 await dbContext.SaveChangesAsync();
             }
-            foreach (var repository in scope.Resolve<IEnumerable<IRepository>>())
+            foreach (var repository in scope.GetServices<IRepository>())
             {
                 await repository.SaveChangesAsync();
             }
