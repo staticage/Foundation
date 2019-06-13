@@ -2,10 +2,13 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
+        <AssemblyName>Foundation.CustomForms</AssemblyName>
+        <RootNamespace>Foundation.CustomForms</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Autofac" Version="4.9.2" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="2.2.0" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Foundation\Foundation.csproj" />
     </ItemGroup>
 </Project>

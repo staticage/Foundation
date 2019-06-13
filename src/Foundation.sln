@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{23
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Applications.Api", "Example.Applications.Api\Example.Applications.Api.csproj", "{4BB33D66-B52A-411F-9BD4-0D1B0425E551}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foundation.CustomForm", "Foundation.CustomForm\Foundation.CustomForm.csproj", "{25668B2B-118A-4006-8422-FF5732923450}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foundation.CustomForms", "Foundation.CustomForms\Foundation.CustomForms.csproj", "{25668B2B-118A-4006-8422-FF5732923450}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Applications.Domain", "Example.Applications.Domain\Example.Applications.Domain.csproj", "{EAB708AA-1BB3-4AE5-B214-8995AC4D3CDD}"
 EndProject

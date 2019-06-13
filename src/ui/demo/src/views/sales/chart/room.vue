@@ -157,17 +157,17 @@ export default {
         };
     },
     computed: {
-        roomPercent: function () {
+        roomPercent: function() {
             let percent =
                 this.chartData.emptyRoomCount / this.chartData.roomCount;
             return Math.round(percent * 100);
         },
-        bedPercent: function () {
+        bedPercent: function() {
             let percent =
                 this.chartData.emptyBedCount / this.chartData.bedCount;
             return Math.round(percent * 100);
         },
-        apartmentName: function () {
+        apartmentName: function() {
             var selected = _.find(
                 this.apartments,
                 x => x.id == this.selectedApartment
@@ -184,7 +184,7 @@ export default {
                 this.selectedApartment = this.apartments[0].id;
                 let url = `${api.roomChart}?apartmentId=${
                     this.selectedApartment
-                    }`;
+                }`;
                 this.$axios.get(url).then(res => {
                     this.chartData = res.data;
                     this.roomTypes = this.roomTypes.concat(

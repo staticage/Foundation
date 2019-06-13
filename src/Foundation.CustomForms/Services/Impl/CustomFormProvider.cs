@@ -13,7 +13,7 @@ namespace Foundation.CustomForm.Services.Impl
                 .Where(x => x.IsPublic && x.IsClass && !x.IsAbstract && x.GetCustomAttributes<CustomFormAttribute>().Any())
                 .Select(CustomFormMetadata.Create).ToList();
 
-        public IEnumerable<CustomFormSetting> FindCustomFormSettings()
+        public IEnumerable<CustomForm> FindCustomFormSettings()
         {
             throw new NotImplementedException();
         }

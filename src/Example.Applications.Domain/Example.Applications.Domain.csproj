@@ -7,7 +7,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\Foundation.CustomForm\Foundation.CustomForm.csproj" />
+      <ProjectReference Include="..\Foundation.CustomForms\Foundation.CustomForms.csproj" />
     </ItemGroup>
 
 </Project>

@@ -9,4 +9,9 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Example.Applications.Domain\Example.Applications.Domain.csproj" />
+      <ProjectReference Include="..\Foundation.CustomForms\Foundation.CustomForms.csproj" />
+    </ItemGroup>
+
 </Project>

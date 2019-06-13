@@ -1,9 +1,9 @@
 <template>
     <section>
-        <el-row class="button-top-row" v-if="$hasPermission('新增')">
-            <el-button-group>
-                <el-button type="primary" size="mini" @click="create" icon="el-icon-circle-plus">新增</el-button>
-            </el-button-group>
+        <el-row class="button-top-row">
+            <el-select v-model="type" placeholder="请选择">
+                <el-option v-for="item in metadata" :key="item.type" :label="item.name" :value="item.type" @change="onCustomFormChanged"></el-option>
+            </el-select>
         </el-row>
         <el-row class="search-row el-form el-form--inline">
             <el-col :span="24">
@@ -12,15 +12,32 @@
                 <el-button type="primary" icon="el-icon-search" @click="search">查询</el-button>
             </el-col>
         </el-row>
-        <el-row class="table-row">
-            <el-table :data="resource.items">
-                <el-table-column prop="name" label="机构名称"></el-table-column>
-                <el-table-column prop="corporation" label="机构法人"></el-table-column>
-                <el-table-column prop="phone" label="账户名称"></el-table-column>
-                <el-table-column fixed="right" label="操作">
+        -->
+        {{metadata}}
+        <el-row class="table-row" v-for="(item, index) in customFields" :key="index">
+            <el-input v-model="item.label" placeholder></el-input>
+            <el-table :data="item.fields">
+                <el-table-column prop="name" label="字段"></el-table-column>
+                <el-table-column prop="label" label="显示名称">
+                    <template slot-scope="scope">
+                        <el-input v-model="scope.row.label" placeholder></el-input>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="phone" label="字段类型">
+                    <template slot-scope="scope">
+                        <el-select v-model="scope.row.type" placeholder="请选择">
+                            <el-option v-for="item in fieldTypes" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        </el-select>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="phone" label="字段选项"></el-table-column>
+                <el-table-column prop="phone" label="默认值"></el-table-column>
+                <el-table-column prop="phone" label="是否列表显示"></el-table-column>
+
+                <el-table-column fixed="right" label="操作" width="80" align="center">
                     <template slot-scope="scope">
                         <el-button @click="editShow(scope.row.id)" type="text" v-if="$hasPermission('编辑')">编辑</el-button>
-                        <el-button @click="remove(scope.row.id)" type="text" v-if="$hasPermission('删除')">删除</el-button>
+                        <!-- <el-button @click="remove(scope.row.id)" type="text" v-if="$hasPermission('删除')">删除</el-button> -->
                     </template>
                 </el-table-column>
             </el-table>
@@ -71,23 +88,59 @@ export default {
     components: {},
     data() {
         return {
+            type: '',
             dialogForm: { id: "" },
             query: {},
             resource: {},
             dialogFormVisible: false,
             loading: false,
+            model: {},
+            customFields: [
+                {
+                    label: "基础信息",
+                    fields: [
+                        {
+                            type: "Text",
+                            label: "姓名"
+                        }
+                    ]
+                }
+            ],
+            metadata: [],
             user: {},
+            fieldTypes: [],
+            customForm: {
+                type: ''
+            },
             rules: {
-                name: [{ required: true, message: "请输入机构名称", trigger: "blur" }],
+                name: [
+                    {
+                        required: true,
+                        message: "请输入机构名称",
+                        trigger: "blur"
+                    }
+                ],
                 corporation: [
-                    { required: true, message: "请输入机构法人", trigger: "blur" }
+                    {
+                        required: true,
+                        message: "请输入机构法人",
+                        trigger: "blur"
+                    }
                 ],
                 phone: [
-                    { required: true, message: "请输入联系电话", trigger: "blur" },
+                    {
+                        required: true,
+                        message: "请输入联系电话",
+                        trigger: "blur"
+                    },
                     { validator: validators.phone, trigger: "blur" }
                 ],
                 email: [
-                    { required: true, message: "请输入电子邮箱", trigger: "blur" },
+                    {
+                        required: true,
+                        message: "请输入电子邮箱",
+                        trigger: "blur"
+                    },
                     {
                         type: "email",
                         message: "电子邮箱格式错误",
@@ -95,31 +148,53 @@ export default {
                     }
                 ],
                 accountName: [
-                    { required: true, message: "请输入账户名称", trigger: "blur" }
+                    {
+                        required: true,
+                        message: "请输入账户名称",
+                        trigger: "blur"
+                    }
                 ],
                 accountNumber: [
-                    { required: true, message: "请输入账户号码", trigger: "blur" },
+                    {
+                        required: true,
+                        message: "请输入账户号码",
+                        trigger: "blur"
+                    },
                     { validator: validators.bankAccount, trigger: "blur" }
                 ],
                 bankName: [
                     { required: true, message: "请输入开户行", trigger: "blur" }
                 ],
                 postcode: [
-                    { required: true, message: "请输入邮政编码", trigger: "blur" },
+                    {
+                        required: true,
+                        message: "请输入邮政编码",
+                        trigger: "blur"
+                    },
                     { validator: validators.zipCode, trigger: "blur" }
                 ],
                 address: [
-                    { required: true, message: "请输入机构地址", trigger: "blur" }
+                    {
+                        required: true,
+                        message: "请输入机构地址",
+                        trigger: "blur"
+                    }
                 ]
             }
         };
     },
 
-    mounted() {
+    async mounted() {
         this.user = this.$store.state.user;
+        this.fieldTypes = (await this.$axios.get("api/select-list/fieldtype")).data;
+        this.metadata = (await this.$axios.get("api/custom-form/_metadata")).data;
+
         this.search();
     },
     methods: {
+        async onCustomFormChanged() {
+            this.customForm = (await this.$axios.get("api/custom-form", { params: { type: this.type } })).data
+        },
         handleSizeChange(pageSize) {
             this.query.pageSize = pageSize;
             this.search();
@@ -207,7 +282,9 @@ export default {
         },
 
         async editShow(id) {
-            this.dialogForm = (await this.$axios.get(api.company + "/" + id)).data;
+            this.dialogForm = (await this.$axios.get(
+                api.company + "/" + id
+            )).data;
             this.dialogFormVisible = true;
             this.$refs["dialogForm"].clearValidate();
         },

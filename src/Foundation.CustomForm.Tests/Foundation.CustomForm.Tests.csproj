@@ -15,6 +15,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Foundation.CustomForm\Foundation.CustomForm.csproj" />
+      <ProjectReference Include="..\Foundation.CustomForms\Foundation.CustomForms.csproj" />
     </ItemGroup>
 </Project>

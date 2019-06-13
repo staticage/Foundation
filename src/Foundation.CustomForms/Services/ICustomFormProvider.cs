@@ -6,6 +6,6 @@ namespace Foundation.CustomForm.Services
     public interface ICustomFormProvider
     {
         IEnumerable<CustomFormMetadata> FindCustomFormMetadata(Assembly assembly);
-        IEnumerable<CustomFormSetting> FindCustomFormSettings();
+        IEnumerable<CustomForm> FindCustomFormSettings();
     }
 }

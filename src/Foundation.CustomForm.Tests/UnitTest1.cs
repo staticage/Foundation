@@ -11,7 +11,7 @@ namespace Tests
         public void Setup()
         {
             var services = new ServiceCollection();
-            services.AddCustomForm(cfg => cfg.UseNpgsql("Server=127.0.0.1;Port=5432;Database=custom_form_tests;User Id=postgres;Password=postgres;"));
+            services.AddCustomForm(cfg => cfg.UseNpgsql("Server=127.0.0.1;Port=5432;Database=custom_form_tests;User Id=postgres;Password=sasa;"));
         }
 
         [Test]
