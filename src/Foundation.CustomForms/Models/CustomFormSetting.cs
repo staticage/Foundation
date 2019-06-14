@@ -7,7 +7,7 @@ namespace Foundation.CustomForm
     public class CustomForm
     {
         public int Id { get; set; }
-        public string EntityType { get; set; }
+        public string Type { get; set; }
         public string Label { get; set; }
         public List<CustomFieldGroup> FieldGroups { get; set; } = new List<CustomFieldGroup>();
 
@@ -15,12 +15,12 @@ namespace Foundation.CustomForm
         {
             return new CustomForm
             {
-                EntityType = metadata.TypeMetadata.Type,
+                Type = metadata.TypeMetadata.Type,
                 FieldGroups = new List<CustomFieldGroup>
                 {
                     new CustomFieldGroup
                     {
-                        Name = "基本信息",
+                        Label = "基本信息",
                         Fields = metadata.Properties.Select(x=> new CustomField
                         { 
                             PropertyName = x.Name,

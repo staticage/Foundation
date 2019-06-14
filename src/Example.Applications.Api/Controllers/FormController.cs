@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Example.Applications.Domain;
+using Foundation.Core;
 using Foundation.CustomForm;
 using Foundation.CustomForm.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -33,29 +34,15 @@ namespace Example.Applications.Api.Controllers
         [HttpGet("api/custom-form")]
         public  async Task<IActionResult> Get([FromQuery]string type)
         {
-            var customForm = await _dbContext.CustomForms.SingleOrDefaultAsync(x => x.EntityType == type);
-            if (customForm != null)
-            {
-                return Ok(customForm);
-            }
-
-            var metadata =  _customFormProvider.FindCustomFormMetadata(typeof(Customer).Assembly).SingleOrDefault(x => x.TypeMetadata.Type == type);
-            if (metadata != null)
-            {
-                return Ok(CustomForm.Create(metadata));
-            }
-
-            return NotFound();
+            return Ok(_dbContext.CustomForms.Where(x => type.IsNullOrEmpty() || x.Type == type).ToList());
         }
-        
-        
-        
+
         [HttpPost("api/custom-form")]
         public async Task<IActionResult> Post([FromBody] CustomForm model)
         {
             await _dbContext.AddAsync(model);
             await _dbContext.SaveChangesAsync();
-            return Ok(model);
+            return Ok();
         }
     }
 

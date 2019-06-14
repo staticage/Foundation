@@ -1,8 +1,8 @@
 <template>
     <section>
         <el-row class="button-top-row">
-            <el-select v-model="type" placeholder="请选择">
-                <el-option v-for="item in metadata" :key="item.type" :label="item.name" :value="item.type" @change="onCustomFormChanged"></el-option>
+            <el-select v-model="metadataType" placeholder="请选择" @change="onMetadataTypeChanged">
+                <el-option v-for="item in metadata" :key="item.type" :label="item.label" :value="item.typeMetadata.type"></el-option>
             </el-select>
         </el-row>
         <el-row class="search-row el-form el-form--inline">
@@ -12,9 +12,8 @@
                 <el-button type="primary" icon="el-icon-search" @click="search">查询</el-button>
             </el-col>
         </el-row>
-        -->
-        {{metadata}}
-        <el-row class="table-row" v-for="(item, index) in customFields" :key="index">
+        {{customForm}}
+        <el-row class="table-row" v-for="(item, index) in this.customForm.fieldGroups" :key="index">
             <el-input v-model="item.label" placeholder></el-input>
             <el-table :data="item.fields">
                 <el-table-column prop="name" label="字段"></el-table-column>
@@ -25,7 +24,7 @@
                 </el-table-column>
                 <el-table-column prop="phone" label="字段类型">
                     <template slot-scope="scope">
-                        <el-select v-model="scope.row.type" placeholder="请选择">
+                        <el-select v-model="scope.row.input.type" placeholder="请选择">
                             <el-option v-for="item in fieldTypes" :key="item.value" :label="item.label" :value="item.value"></el-option>
                         </el-select>
                     </template>
@@ -36,12 +35,16 @@
 
                 <el-table-column fixed="right" label="操作" width="80" align="center">
                     <template slot-scope="scope">
-                        <el-button @click="editShow(scope.row.id)" type="text" v-if="$hasPermission('编辑')">编辑</el-button>
+                        <el-button @click="editShow(scope.row.id)" type="text">编辑</el-button>
                         <!-- <el-button @click="remove(scope.row.id)" type="text" v-if="$hasPermission('删除')">删除</el-button> -->
                     </template>
                 </el-table-column>
             </el-table>
-            <el-pagination :current-page="query.page" :page-sizes="[10, 20, 30, 40]" :page-size="query.pageSize" layout="total,prev,pager,next,sizes,jumper" :total="resource.total" @size-change="handleSizeChange" @current-change="handleCurrentChange"></el-pagination>
+        </el-row>
+        <el-row>
+            <el-col :span="24">
+                <el-button type="primary" @click="save">保存</el-button>
+            </el-col>
         </el-row>
         <el-dialog :close-on-click-modal="false" title="机构信息" :visible.sync="dialogFormVisible" width="30%">
             <el-form ref="dialogForm" :rules="rules" :model="dialogForm" label-width="80px">
@@ -107,6 +110,7 @@ export default {
                 }
             ],
             metadata: [],
+            metadataType: '',
             user: {},
             fieldTypes: [],
             customForm: {
@@ -192,17 +196,27 @@ export default {
         this.search();
     },
     methods: {
-        async onCustomFormChanged() {
-            this.customForm = (await this.$axios.get("api/custom-form", { params: { type: this.type } })).data
+        async onMetadataTypeChanged(e) {
+            const existCustomForm = (await this.$axios.get("api/custom-form", { params: { type: this.metadataType } })).data
+            if (existCustomForm && existCustomForm.length) {
+                this.customForm = existCustomForm[0]
+            } else {
+                const meta = this.metadata.filter(x => x.typeMetadata.type === this.metadataType)[0];
+                console.log(meta)
+                this.customForm = {
+                    label: meta.label,
+                    type: meta.typeMetadata.type,
+                    fieldGroups: [
+                        {
+                            label: '基础信息',
+                            fields: meta.properties.map(x => ({ name: x.name, label: x.label, input: { type: 'Text' } }))
+                        }
+                    ]
+                }
+            }
         },
-        handleSizeChange(pageSize) {
-            this.query.pageSize = pageSize;
-            this.search();
-        },
-
-        handleCurrentChange(page) {
-            this.query.page = page;
-            this.search();
+        async save() {
+            await this.$axios.post("api/custom-form", this.customForm);
         },
         async search() {
             this.resource = (await this.$axios.post(
@@ -249,37 +263,7 @@ export default {
                     // catch 不要删除，Uncaught (in promise) cancel
                 });
         },
-        save() {
-            this.$refs.dialogForm.validate(valid => {
-                if (valid) {
-                    this.loading = true;
-                    const httpRequest = this.dialogForm.id
-                        ? this.$axios.put(api.company, this.dialogForm)
-                        : this.$axios.post(api.company, this.dialogForm);
-                    httpRequest.then(
-                        response => {
-                            this.loading = false;
-                            this.dialogFormVisible = false;
-                            this.$message({
-                                message: "保存成功",
-                                type: "success"
-                            });
-                            this.search();
-                        },
-                        error => {
-                            this.loading = false;
-                            const result = error.response.data;
-                            this.$message({
-                                type: "error",
-                                message: "保存失败:" + result.Message
-                            });
-                        }
-                    );
-                } else {
-                    return;
-                }
-            });
-        },
+
 
         async editShow(id) {
             this.dialogForm = (await this.$axios.get(
