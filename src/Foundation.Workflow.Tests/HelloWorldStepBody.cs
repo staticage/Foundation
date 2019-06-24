@@ -21,7 +21,7 @@ namespace Foundation.Workflow.Tests
             {
                 throw new InvalidOperationException("无效的流程操作");
             }
-            return context.StepDefinition.Actions.Single(x => x.ActionName == evt.Action).Action.Act(context);
+            return await Task.FromResult(context.StepDefinition.Actions.Single(x => x.ActionName == evt.Action).Action.Act(context));
         }
     }
 }

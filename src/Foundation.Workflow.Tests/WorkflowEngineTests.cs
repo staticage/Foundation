@@ -38,7 +38,7 @@ namespace Foundation.Workflow.Tests
         public async Task Should_execute_steps_one_by_one()
         {
             IWorkflowEngine engine = new WorkflowEngine(_provider.GetService<IWorkflowRepository>(), new WorkflowExecutor(_provider));
-            engine.Registrar.RegisterWorkflowDefinition(definition);
+            await engine.Registrar.RegisterWorkflowDefinition(definition);
 
             var workflowId =  await engine.StartWorkflow("Workflow1");
             var workflow = await GetService<IWorkflowRepository>().GetWorkflow(workflowId);
