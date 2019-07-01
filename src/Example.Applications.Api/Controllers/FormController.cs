@@ -30,11 +30,17 @@ namespace Example.Applications.Api.Controllers
         {
             return Ok(_customFormProvider.FindCustomFormMetadata(typeof(Customer).Assembly));
         }
-        
-        [HttpGet("api/custom-form")]
-        public  async Task<IActionResult> Get([FromQuery]string type)
+
+        [HttpPost("api/custom-form/_query")]
+        public async Task<IActionResult> Query([FromBody]CustomFormQuery query)
         {
-            return Ok(_dbContext.CustomForms.Where(x => type.IsNullOrEmpty() || x.Type == type).ToList());
+            return Ok(await _dbContext.CustomForms.Where(x=> x.Type == query.Type).ToListAsync());
+        }
+
+        [HttpGet("api/custom-form/{id}")]
+        public  async Task<IActionResult> Get([FromQuery]int id)
+        {
+            return Ok(await _dbContext.CustomForms.SingleAsync(x=> x.Id == id));
         }
 
         [HttpPost("api/custom-form")]
@@ -42,8 +48,22 @@ namespace Example.Applications.Api.Controllers
         {
             await _dbContext.AddAsync(model);
             await _dbContext.SaveChangesAsync();
-            return Ok();
+            return Ok(model);
         }
+
+        [HttpPut("api/custom-form")]
+        public async Task<IActionResult> Put([FromBody] CustomForm model)
+        {
+            var customForm = await _dbContext.CustomForms.SingleAsync(x=> x.Id == model.Id);
+            model.Populate(customForm);
+            await _dbContext.SaveChangesAsync();
+            return Ok(customForm);
+        }
+    }
+
+    public class CustomFormQuery
+    {
+        public string Type { get;  set; }
     }
 
     public class SelectListController : Controller

@@ -32,7 +32,7 @@ namespace Example.Applications.Api
                     .WithOrigins("http://localhost:8080")
                     .AllowCredentials();
             }));
-            services.AddCustomForm(x=> x.UseNpgsql("Server=127.0.0.1;Port=5432;Database=custom_form_tests;User Id=postgres;Password=sasa;"));
+            services.AddCustomForm(x=> x.UseNpgsql("Server=127.0.0.1;Port=5432;Database=custom_form_tests;User Id=postgres;Password=postgres;"));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

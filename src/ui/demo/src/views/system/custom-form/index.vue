@@ -192,14 +192,12 @@ export default {
         this.user = this.$store.state.user;
         this.fieldTypes = (await this.$axios.get("api/select-list/fieldtype")).data;
         this.metadata = (await this.$axios.get("api/custom-form/_metadata")).data;
-
-        this.search();
     },
     methods: {
         async onMetadataTypeChanged(e) {
-            const existCustomForm = (await this.$axios.get("api/custom-form", { params: { type: this.metadataType } })).data
-            if (existCustomForm && existCustomForm.length) {
-                this.customForm = existCustomForm[0]
+            const existCustomForms = (await this.$axios.post("api/custom-form/_query", { params: { type: this.metadataType } })).data
+            if (existCustomForms && existCustomForms.length) {
+                this.customForm = existCustomForms[0]
             } else {
                 const meta = this.metadata.filter(x => x.typeMetadata.type === this.metadataType)[0];
                 console.log(meta)
