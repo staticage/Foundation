@@ -2,12 +2,7 @@
     <section>
         <el-row class="button-top-row">
             <el-select v-model="metadataType" placeholder="请选择" @change="onMetadataTypeChanged">
-                <el-option
-                    v-for="item in metadata"
-                    :key="item.type"
-                    :label="item.label"
-                    :value="item.typeMetadata.type"
-                ></el-option>
+                <el-option v-for="item in metadata" :key="item.type" :label="item.label" :value="item.typeMetadata.type"></el-option>
             </el-select>
         </el-row>
         <el-row class="search-row el-form el-form--inline">
@@ -30,12 +25,7 @@
                 <el-table-column prop="phone" label="字段类型">
                     <template slot-scope="scope">
                         <el-select v-model="scope.row.input.type" placeholder="请选择">
-                            <el-option
-                                v-for="item in fieldTypes"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value"
-                            ></el-option>
+                            <el-option v-for="item in fieldTypes" :key="item.value" :label="item.label" :value="item.value"></el-option>
                         </el-select>
                     </template>
                 </el-table-column>
@@ -56,12 +46,7 @@
                 <el-button type="primary" @click="save">保存</el-button>
             </el-col>
         </el-row>
-        <el-dialog
-            :close-on-click-modal="false"
-            title="机构信息"
-            :visible.sync="dialogFormVisible"
-            width="30%"
-        >
+        <el-dialog :close-on-click-modal="false" title="机构信息" :visible.sync="dialogFormVisible" width="30%">
             <el-form ref="dialogForm" :rules="rules" :model="dialogForm" label-width="80px">
                 <el-form-item label="机构名称" prop="name">
                     <el-input v-model="dialogForm.name" placeholder="请输入机构名称"></el-input>
@@ -106,7 +91,7 @@ export default {
     components: {},
     data() {
         return {
-            type: "",
+            type: '',
             dialogForm: { id: "" },
             query: {},
             resource: {},
@@ -125,11 +110,11 @@ export default {
                 }
             ],
             metadata: [],
-            metadataType: "",
+            metadataType: '',
             user: {},
             fieldTypes: [],
             customForm: {
-                type: ""
+                type: ''
             },
             rules: {
                 name: [
@@ -205,41 +190,27 @@ export default {
 
     async mounted() {
         this.user = this.$store.state.user;
-        this.fieldTypes = (await this.$axios.get(
-            "api/select-list/fieldtype"
-        )).data;
-        this.metadata = (await this.$axios.get(
-            "api/custom-form/_metadata"
-        )).data;
-
-        this.search();
+        this.fieldTypes = (await this.$axios.get("api/select-list/fieldtype")).data;
+        this.metadata = (await this.$axios.get("api/custom-form/_metadata")).data;
     },
     methods: {
         async onMetadataTypeChanged(e) {
-            const existCustomForm = (await this.$axios.get("api/custom-form", {
-                params: { type: this.metadataType }
-            })).data;
-            if (existCustomForm && existCustomForm.length) {
-                this.customForm = existCustomForm[0];
+            const existCustomForms = (await this.$axios.post("api/custom-form/_query", { params: { type: this.metadataType } })).data
+            if (existCustomForms && existCustomForms.length) {
+                this.customForm = existCustomForms[0]
             } else {
-                const meta = this.metadata.filter(
-                    x => x.typeMetadata.type === this.metadataType
-                )[0];
-                console.log(meta);
+                const meta = this.metadata.filter(x => x.typeMetadata.type === this.metadataType)[0];
+                console.log(meta)
                 this.customForm = {
                     label: meta.label,
                     type: meta.typeMetadata.type,
                     fieldGroups: [
                         {
-                            label: "基础信息",
-                            fields: meta.properties.map(x => ({
-                                name: x.name,
-                                label: x.label,
-                                input: { type: "Text" }
-                            }))
+                            label: '基础信息',
+                            fields: meta.properties.map(x => ({ name: x.name, label: x.label, input: { type: 'Text' } }))
                         }
                     ]
-                };
+                }
             }
         },
         async save() {
@@ -290,6 +261,7 @@ export default {
                     // catch 不要删除，Uncaught (in promise) cancel
                 });
         },
+
 
         async editShow(id) {
             this.dialogForm = (await this.$axios.get(
