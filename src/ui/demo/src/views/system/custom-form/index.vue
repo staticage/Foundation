@@ -6,7 +6,6 @@
                     <el-option v-for="item in metadata" :key="item.type" :label="item.label" :value="item.typeMetadata.name"></el-option>
                 </el-select>
             </el-col>
-
             <el-col :span="12">
                 <el-button type="primary" :disabled="!customForm || !customForm.id" @click="preview">预览</el-button>
             </el-col>
@@ -37,8 +36,12 @@
                         <ValidationMethodsEdtior v-model="scope.row.input.validationMethods" />
                     </template>
                 </el-table-column>
-                <el-table-column prop="phone" label="字段选项"></el-table-column>
-                <el-table-column prop="phone" label="默认值"></el-table-column>
+                <el-table-column prop="phone" label="字段选项">
+                    <template slot-scope="scope">
+                        <OptionsEditor v-model="scope.row.input.validationMethods" />
+                    </template>
+                </el-table-column>
+
                 <el-table-column align="center" width="70" prop="phone" label="列表显示">
                     <template slot-scope="scope">
                         <el-switch v-model="scope.row.isShowInTable"></el-switch>
@@ -89,8 +92,9 @@ import api from "../../../config/api";
 import _ from "lodash";
 import validators, { ValidationMethods } from "../../../common/validators";
 import ValidationMethodsEdtior from "../../../components/ValidationMethodsEditor";
+import OptionsEditor from "../../../components/OptionsEditor";
 export default {
-    components: { ValidationMethodsEdtior },
+    components: { ValidationMethodsEdtior, OptionsEditor },
     data() {
         return {
             type: '',

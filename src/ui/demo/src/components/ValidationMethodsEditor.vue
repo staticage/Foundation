@@ -1,7 +1,12 @@
 <template>
     <section>
-        <el-button @click="showDialog = true">设置</el-button>
-        <el-tag></el-tag>
+        <el-button @click="showDialog = true" icon="el-icon-setting" circle></el-button>
+        <span v-if="value">
+            <template v-for="v in value">
+                <el-tag style="margin-left:5px;" v-if="v.method === 'required'" :key="v.method" type="danger">必填</el-tag>
+                <el-tag style="margin-left:5px;" v-if="isFormatValidation(v.method)" :key="v.method">{{getFormatValidationLabel(v.method)}}</el-tag>
+            </template>
+        </span>
         <el-dialog title="验证设置" :visible.sync="showDialog" width="40%">
             <el-form ref="form" :model="setting" label-width="80px" label-position="left">
                 <el-form-item label="是否必填">
@@ -13,9 +18,11 @@
                         <el-radio :key="index" v-for="(method, index) in validationMethods" :label="method.value">{{method.label}}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-
-                <el-button @click="addCustomValidation">添加自定义验证</el-button>
             </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="showDialog = false">取 消</el-button>
+                <el-button type="primary" @click="save">保 存</el-button>
+            </div>
         </el-dialog>
     </section>
 </template>
@@ -36,6 +43,7 @@ export default {
             isRequired: false,
             setting: {
                 custom: [],
+                isRequired: false,
                 format: ""
             },
             showDialog: false,
@@ -45,7 +53,7 @@ export default {
     },
 
     async mounted() {
-        this.validations = this.$props.value || [];
+        this.validations = JSON.parse(JSON.stringify(this.$props.value || []));
         this.setting.isRequired = this.validations.findIndex(x => x.method === "required") > -1;
         const formatValidations = this.validations.filter(x => ValidationMethods.isFormatValidation(x.method))
         this.setting.format = formatValidations.length > 0 ? formatValidations[0].method : ""
@@ -55,9 +63,9 @@ export default {
     methods: {
         onIsRequiredChanged(val) {
             if (val) {
-                this.$props.value.push({ method: "required" })
+                this.validations.push({ method: "required" })
             } else {
-                this.$props.value.splice(this.$props.value.findIndex(x => x.method === "required"), 1)
+                this.validations.splice(this.validations.findIndex(x => x.method === "required"), 1)
             }
         },
         onFormatValidationChanged(e) {
@@ -72,26 +80,17 @@ export default {
                 this.validations.push({ method: e })
             }
         },
-        async showConsumables(row) {
-            this.showDialog = true;
-            this.consumables = (await this.$axios.get(
-                api.valueAddedService + "/consumable/" + row.id
-            )).data
-        },
         addCustomValidation() { },
-        async search() {
-            this.resource = (await this.$axios.post(
-                api.valueAddedService + "/query",
-                this.query
-            )).data;
+        isFormatValidation(method) {
+            return ValidationMethods.isFormatValidation(method)
         },
-        init() {
-            this.query.customerId = this.$props.id;
-            this.search();
+        getFormatValidationLabel(method) {
+            return ValidationMethods.items.filter(x => x.value === method)[0].label
         },
-        edit() {
-            this.dialogFormVisible = true;
-        },
+        save() {
+            this.$emit("input", JSON.parse(JSON.stringify(this.validations)))
+            this.showDialog = false;
+        }
     }
 };
 </script>
