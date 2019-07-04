@@ -2,15 +2,17 @@
 using Foundation.CustomForm;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Foundation.CustomForms.Migrations
 {
     [DbContext(typeof(CustomFormDbContext))]
-    partial class CustomFormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190704065545_settings_e")]
+    partial class settings_e
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

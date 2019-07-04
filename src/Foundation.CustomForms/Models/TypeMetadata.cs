@@ -7,6 +7,7 @@ namespace Foundation.CustomForm
         public string Assembly { get; set; }
         public string Type { get; set; }
         public string AssemblyQualifiedName { get; set; } 
+        public string Name { get; set; }
         
         public static TypeMetadata Create(Type type)
         {
@@ -14,7 +15,8 @@ namespace Foundation.CustomForm
             {
                 Assembly = type.Assembly.GetName().Name,
                 Type = type.FullName,
-                AssemblyQualifiedName = type.AssemblyQualifiedName
+                AssemblyQualifiedName = type.AssemblyQualifiedName,
+                Name = type.Name
             };
         }
     }

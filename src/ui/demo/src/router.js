@@ -16,6 +16,10 @@ const Categories = [
         icon: "far fa-building"
     },
     {
+        name: "自定义表单",
+        icon: "far fa-building"
+    },
+    {
         name: "费用管理",
         icon: "far el-icon-document"
     },

@@ -1,51 +1,52 @@
 <template>
     <section>
         <el-row class="button-top-row">
-            <el-select v-model="metadataType" placeholder="请选择" @change="onMetadataTypeChanged">
-                <el-option v-for="item in metadata" :key="item.type" :label="item.label" :value="item.typeMetadata.type"></el-option>
-            </el-select>
-        </el-row>
-        <el-row class="search-row el-form el-form--inline">
-            <el-col :span="24">
-                <label>机构名称：</label>
-                <el-input v-model="query.name" placeholder="机构名称"></el-input>
-                <el-button type="primary" icon="el-icon-search" @click="search">查询</el-button>
+            <el-col :span="12">
+                <el-select v-model="metadataName" placeholder="请选择" @change="onMetadataNameChanged">
+                    <el-option v-for="item in metadata" :key="item.type" :label="item.label" :value="item.typeMetadata.name"></el-option>
+                </el-select>
             </el-col>
-        </el-row>
-        {{customForm}}
-        <el-row class="table-row" v-for="(item, index) in this.customForm.fieldGroups" :key="index">
-            <el-input v-model="item.label" placeholder></el-input>
-            <el-table :data="item.fields">
-                <el-table-column prop="name" label="字段"></el-table-column>
-                <el-table-column prop="label" label="显示名称">
-                    <template slot-scope="scope">
-                        <el-input v-model="scope.row.label" placeholder></el-input>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="phone" label="字段类型">
-                    <template slot-scope="scope">
-                        <el-select v-model="scope.row.input.type" placeholder="请选择">
-                            <el-option v-for="item in fieldTypes" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                        </el-select>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="phone" label="字段选项"></el-table-column>
-                <el-table-column prop="phone" label="默认值"></el-table-column>
-                <el-table-column prop="phone" label="是否列表显示"></el-table-column>
 
-                <el-table-column fixed="right" label="操作" width="80" align="center">
-                    <template slot-scope="scope">
-                        <el-button @click="editShow(scope.row.id)" type="text">编辑</el-button>
-                        <!-- <el-button @click="remove(scope.row.id)" type="text" v-if="$hasPermission('删除')">删除</el-button> -->
-                    </template>
-                </el-table-column>
-            </el-table>
+            <el-col :span="12">
+                <el-button type="primary" :disabled="!customForm || !customForm.id" @click="preview">预览</el-button>
+            </el-col>
         </el-row>
         <el-row>
             <el-col :span="24">
                 <el-button type="primary" @click="save">保存</el-button>
             </el-col>
         </el-row>
+        <el-row class="table-row" v-for="(item, index) in this.customForm.fieldGroups" :key="index">
+            <el-input v-model="item.label" placeholder></el-input>
+            <el-table :data="item.fields">
+                <el-table-column prop="name" label="字段" width="120"></el-table-column>
+                <el-table-column prop="label" label="显示名称" width="160">
+                    <template slot-scope="scope">
+                        <el-input v-model="scope.row.label" placeholder></el-input>
+                    </template>
+                </el-table-column>
+                <el-table-column label="字段类型" width="120">
+                    <template slot-scope="scope">
+                        <el-select v-model="scope.row.input.type" placeholder="请选择">
+                            <el-option v-for="item in fieldTypes" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                        </el-select>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="phone" label="验证规则">
+                    <template slot-scope="scope">
+                        <ValidationMethodsEdtior v-model="scope.row.input.validationMethods" />
+                    </template>
+                </el-table-column>
+                <el-table-column prop="phone" label="字段选项"></el-table-column>
+                <el-table-column prop="phone" label="默认值"></el-table-column>
+                <el-table-column align="center" width="70" prop="phone" label="列表显示">
+                    <template slot-scope="scope">
+                        <el-switch v-model="scope.row.isShowInTable"></el-switch>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-row>
+
         <el-dialog :close-on-click-modal="false" title="机构信息" :visible.sync="dialogFormVisible" width="30%">
             <el-form ref="dialogForm" :rules="rules" :model="dialogForm" label-width="80px">
                 <el-form-item label="机构名称" prop="name">
@@ -85,10 +86,11 @@
 </template>
 <script >
 import api from "../../../config/api";
-import validators from "../../../common/validators";
-
+import _ from "lodash";
+import validators, { ValidationMethods } from "../../../common/validators";
+import ValidationMethodsEdtior from "../../../components/ValidationMethodsEditor";
 export default {
-    components: {},
+    components: { ValidationMethodsEdtior },
     data() {
         return {
             type: '',
@@ -110,111 +112,55 @@ export default {
                 }
             ],
             metadata: [],
-            metadataType: '',
+            metadataName: '',
             user: {},
             fieldTypes: [],
             customForm: {
-                type: ''
+                name: ''
             },
-            rules: {
-                name: [
-                    {
-                        required: true,
-                        message: "请输入机构名称",
-                        trigger: "blur"
-                    }
-                ],
-                corporation: [
-                    {
-                        required: true,
-                        message: "请输入机构法人",
-                        trigger: "blur"
-                    }
-                ],
-                phone: [
-                    {
-                        required: true,
-                        message: "请输入联系电话",
-                        trigger: "blur"
-                    },
-                    { validator: validators.phone, trigger: "blur" }
-                ],
-                email: [
-                    {
-                        required: true,
-                        message: "请输入电子邮箱",
-                        trigger: "blur"
-                    },
-                    {
-                        type: "email",
-                        message: "电子邮箱格式错误",
-                        trigger: "blur"
-                    }
-                ],
-                accountName: [
-                    {
-                        required: true,
-                        message: "请输入账户名称",
-                        trigger: "blur"
-                    }
-                ],
-                accountNumber: [
-                    {
-                        required: true,
-                        message: "请输入账户号码",
-                        trigger: "blur"
-                    },
-                    { validator: validators.bankAccount, trigger: "blur" }
-                ],
-                bankName: [
-                    { required: true, message: "请输入开户行", trigger: "blur" }
-                ],
-                postcode: [
-                    {
-                        required: true,
-                        message: "请输入邮政编码",
-                        trigger: "blur"
-                    },
-                    { validator: validators.zipCode, trigger: "blur" }
-                ],
-                address: [
-                    {
-                        required: true,
-                        message: "请输入机构地址",
-                        trigger: "blur"
-                    }
-                ]
-            }
+            rules: {}
         };
     },
 
     async mounted() {
         this.user = this.$store.state.user;
-        this.fieldTypes = (await this.$axios.get("api/select-list/fieldtype")).data;
-        this.metadata = (await this.$axios.get("api/custom-form/_metadata")).data;
+        this.fieldTypes = ValidationMethods.getInputs();
+        this.metadata = (await this.$axios.get("custom-form/_metadata")).data;
+
     },
     methods: {
-        async onMetadataTypeChanged(e) {
-            const existCustomForms = (await this.$axios.post("api/custom-form/_query", { params: { type: this.metadataType } })).data
+        async onMetadataNameChanged(e) {
+            const meta = this.metadata.filter(x => x.typeMetadata.name === this.metadataName)[0];
+            const fields = meta.properties.map(x => ({ name: x.name, label: x.label, isShowInTable: true, input: { type: 'text', validatonMethods: [] } }));
+            const existCustomForms = (await this.$axios.post("custom-form/_query", { name: this.metadataName })).data
+
             if (existCustomForms && existCustomForms.length) {
+                const mergedFields = _.unionBy(existCustomForms[0].fieldGroups[0].fields, fields, 'name');
+                existCustomForms[0].fieldGroups[0].fields = mergedFields;
                 this.customForm = existCustomForms[0]
             } else {
-                const meta = this.metadata.filter(x => x.typeMetadata.type === this.metadataType)[0];
-                console.log(meta)
                 this.customForm = {
                     label: meta.label,
-                    type: meta.typeMetadata.type,
+                    name: meta.typeMetadata.name,
                     fieldGroups: [
                         {
                             label: '基础信息',
-                            fields: meta.properties.map(x => ({ name: x.name, label: x.label, input: { type: 'Text' } }))
+                            fields: fields
                         }
                     ]
                 }
             }
         },
         async save() {
-            await this.$axios.post("api/custom-form", this.customForm);
+            if (!this.customForm.id) {
+                await this.$axios.post("custom-form", this.customForm);
+            }
+            else {
+                await this.$axios.put("custom-form", this.customForm);
+            }
+        },
+        async preview() {
+            this.$router.push(`/system/custom-form/${this.customForm.id}/preview`);
         },
         async search() {
             this.resource = (await this.$axios.post(
@@ -229,40 +175,6 @@ export default {
                 this.$refs["dialogForm"].clearValidate();
             }
         },
-        async remove(id) {
-            this.$confirm("确认删除?", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
-            })
-                .then(() => {
-                    this.loading = true;
-                    this.$axios.delete(api.company + "/" + id).then(
-                        response => {
-                            this.loading = false;
-                            this.$message({
-                                type: "success",
-                                message: "删除成功!"
-                            });
-                            this.search();
-                        },
-                        err => {
-                            this.loading = false;
-                            const result = err.response.data;
-                            this.$message({
-                                type: "error",
-                                message: "删除失败:" + result.Message,
-                                center: true
-                            });
-                        }
-                    );
-                })
-                .catch(() => {
-                    // catch 不要删除，Uncaught (in promise) cancel
-                });
-        },
-
-
         async editShow(id) {
             this.dialogForm = (await this.$axios.get(
                 api.company + "/" + id

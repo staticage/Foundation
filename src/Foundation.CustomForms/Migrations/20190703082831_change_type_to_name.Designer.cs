@@ -2,15 +2,17 @@
 using Foundation.CustomForm;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Foundation.CustomForms.Migrations
 {
     [DbContext(typeof(CustomFormDbContext))]
-    partial class CustomFormDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190703082831_change_type_to_name")]
+    partial class change_type_to_name
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,20 +34,6 @@ namespace Foundation.CustomForms.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CustomForms");
-                });
-
-            modelBuilder.Entity("Foundation.CustomForm.Setting", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Items");
-
-                    b.Property<string>("Name");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Settings");
                 });
 #pragma warning restore 612, 618
         }

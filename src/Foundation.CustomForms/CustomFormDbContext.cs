@@ -6,6 +6,7 @@ namespace Foundation.CustomForm
     public class CustomFormDbContext : DbContext
     {
         public DbSet<CustomForm> CustomForms { get; set; }
+        public DbSet<Setting> Settings { get; set; }
         public CustomFormDbContext(DbContextOptions<CustomFormDbContext> options) :base(options)
         {
             
@@ -14,6 +15,7 @@ namespace Foundation.CustomForm
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CustomForm>().Property(x => x.FieldGroups).IsJson();
+            modelBuilder.Entity<Setting>().Property(x => x.Items).IsJson();
             base.OnModelCreating(modelBuilder);
         }
     }

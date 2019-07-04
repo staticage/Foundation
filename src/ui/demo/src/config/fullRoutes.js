@@ -95,273 +95,6 @@ const routes = [
         ]
     },
     {
-        path: "/sales",
-
-        component: Layout,
-        meta: {
-            title: "销售管理",
-            role: "销售管理"
-        },
-        children: [
-            {
-                path: "",
-                component: Consulting,
-                name: "sales",
-                meta: {
-                    title: "咨询接待",
-                    category: "咨询管理",
-                    role: "咨询接待",
-                    subRole: "查看"
-                }
-            },
-            {
-                path: "/contract/create/:id",
-                name: "contract-create",
-                component: () => import("../views/contract/create.vue"),
-                meta: {
-                    title: "合同创建",
-                    category: "咨询管理",
-                    role: "合同管理",
-                    subRole: "新增",
-                    hidden: true
-                }
-            },
-            {
-                path: "/contract/edit/:id",
-                name: "contract-edit",
-                component: () => import("../views/contract/edit.vue"),
-                meta: {
-                    title: "合同编辑",
-                    category: "咨询管理",
-                    role: "合同管理",
-                    subRole: "编辑",
-                    hidden: true
-                }
-            },
-            {
-                path: "/contract/details/:id",
-                name: "contract-details",
-                component: () => import("../views/contract/details.vue"),
-                meta: {
-                    title: "合同详情",
-                    category: "咨询管理",
-                    role: "合同管理",
-                    subRole: "查看",
-                    hidden: true
-                }
-            },
-            {
-                path: "/consulting/favorite",
-                name: "consulting-favorite",
-                component: () => import("../views/consulting/favorite.vue"),
-                meta: {
-                    title: "我的收藏",
-                    category: "咨询管理",
-                    role: "咨询接待",
-                    subRole: "查看"
-                }
-            },
-            {
-                path: "/consulting/trace",
-                component: () => import("../views/consulting/trace.vue"),
-                meta: {
-                    title: "跟踪列表",
-                    category: "咨询管理",
-                    role: "跟踪列表",
-                    subRole: "查看"
-                }
-            },
-            {
-                path: "/consulting/create",
-                name: "consulting-create",
-                component: () => import("../views/consulting/create.vue"),
-                meta: {
-                    title: "咨询接待新增",
-                    category: "咨询管理",
-                    role: "咨询接待",
-                    subRole: "新增",
-                    hidden: true
-                }
-            },
-            {
-                path: "/consulting/edit/:id",
-                name: "consulting-edit",
-                component: () => import("../views/consulting/edit.vue"),
-                meta: {
-                    title: "咨询接待编辑",
-                    category: "咨询管理",
-                    role: "咨询接待",
-                    subRole: "编辑",
-                    hidden: true
-                }
-            },
-            {
-                path: "/consulting/details/:id",
-                name: "consulting-details",
-                component: () => import("../views/consulting/details.vue"),
-                meta: {
-                    title: "咨询接待详情",
-                    category: "咨询管理",
-                    role: "咨询接待",
-                    subRole: "查看",
-                    hidden: true
-                }
-            },
-            {
-                path: "/sales/chart/room",
-                component: SalesChart,
-                meta: {
-                    title: "销控图",
-                    category: "销控图",
-                    role: "销控图",
-                    subRole: "查看"
-                }
-            }
-        ]
-    },
-    {
-        path: "/customer",
-
-        component: Layout,
-        meta: {
-            title: "客户管理",
-            role: "客户管理"
-        },
-        children: [
-            {
-                path: "",
-                component: Customer,
-                name: "customer",
-                meta: {
-                    title: "客户信息",
-                    icon: "el-icon-service",
-                    category: "客户管理",
-                    role: "客户信息",
-                    subRole: "查看"
-                }
-            },
-            {
-                path: "/customer/waiting/:id",
-                name: "customer-waiting",
-                component: () => import("../views/customer/waiting.vue"),
-                meta: {
-                    title: "合同查看",
-                    category: "客户信息",
-                    role: "客户信息",
-                    subRole: "查看",
-                    hidden: true
-                }
-            },
-            {
-                path: "/customer/details/:id",
-                name: "customer-details",
-                component: () => import("../views/customer/details.vue"),
-                meta: {
-                    title: "客户详情",
-                    category: "客户信息",
-                    role: "客户信息",
-                    subRole: "查看",
-                    hidden: true
-                }
-            }
-        ]
-    },
-    {
-        path: "/finance",
-        name: "finance",
-        component: Layout,
-        meta: {
-            title: "财务管理",
-            role: "财务管理"
-        },
-        children: [
-            {
-                path: "/finance/cash-account",
-                name: "cashAccount",
-                component: () => import("../views/finance/cashAccount.vue"),
-                meta: {
-                    title: "现金账户",
-                    category: "客户账户管理",
-                    role: "现金账户",
-                    subRole: "查看"
-                }
-            },
-            {
-                path: "/finance/cash-flow",
-                name: "cashFlow",
-                component: () => import("../views/finance/cashFlow.vue"),
-                meta: {
-                    title: "现金账户流水",
-                    category: "客户账户管理",
-                    role: "现金账户流水",
-                    subRole: "查看"
-                }
-            },
-            {
-                path: "/finance/point-account",
-                name: "pointAccount",
-                component: () => import("../views/finance/pointAccount.vue"),
-                meta: {
-                    title: "积分账户",
-                    category: "客户账户管理",
-                    role: "积分账户",
-                    subRole: "查看"
-                }
-            },
-            {
-                path: "/finance/point-flow",
-                name: "pointFlow",
-                component: () => import("../views/finance/pointFlow.vue"),
-                meta: {
-                    title: "积分账户流水",
-                    category: "客户账户管理",
-                    role: "积分账户流水",
-                    subRole: "查看"
-                }
-            },
-            {
-                path: "/finance/deposit-bill",
-                component: Consulting,
-                meta: {
-                    title: "押金账单",
-                    category: "账单管理",
-                    role: "押金账单",
-                    subRole: "查看"
-                }
-            },
-            {
-                path: "/finance/monthly-fee-bill",
-                component: Consulting,
-                meta: {
-                    title: "月费账单",
-                    category: "账单管理",
-                    role: "月费账单",
-                    subRole: "查看"
-                }
-            },
-            {
-                path: "/finance/settlement-fee-bill",
-                component: Consulting,
-                meta: {
-                    title: "一次性安置费账单",
-                    category: "账单管理",
-                    role: "一次性安置费账单",
-                    subRole: "查看"
-                }
-            }
-        ]
-    },
-    {
-        path: "/report",
-        name: "report",
-        component: Layout,
-        meta: {
-            title: "报表管理",
-            role: "报表管理"
-        },
-        children: []
-    },
-    {
         path: "/system",
         name: "system",
         component: Layout,
@@ -374,9 +107,27 @@ const routes = [
                 path: "custom-form",
                 component: () => import("$v/system/custom-form/index.vue"),
                 meta: {
-                    title: "自定义表单",
-                    category: "配置项",
+                    title: "自定义表单配置",
+                    category: "自定义表单",
                     role: "自定义表单"
+                }
+            },
+            {
+                path: "custom-form/dictionary",
+                component: () => import("$v/system/custom-form/dictionary.vue"),
+                meta: {
+                    title: "数据字典配置",
+                    category: "自定义表单",
+                    role: "数据字典"
+                }
+            },
+            {
+                path: "custom-form/:id/preview",
+                component: () => import("$v/system/custom-form/preview.vue"),
+                meta: {
+                    title: "自定义表单预览",
+                    role: "自定义表单",
+                    hidden: true
                 }
             },
             {

@@ -34,11 +34,11 @@ namespace Example.Applications.Api.Controllers
         [HttpPost("api/custom-form/_query")]
         public async Task<IActionResult> Query([FromBody]CustomFormQuery query)
         {
-            return Ok(await _dbContext.CustomForms.Where(x=> x.Type == query.Type).ToListAsync());
+            return Ok(await _dbContext.CustomForms.Where(x=> x.Name == query.Name).ToListAsync());
         }
 
         [HttpGet("api/custom-form/{id}")]
-        public  async Task<IActionResult> Get([FromQuery]int id)
+        public  async Task<IActionResult> Get(int id)
         {
             return Ok(await _dbContext.CustomForms.SingleAsync(x=> x.Id == id));
         }
@@ -55,7 +55,8 @@ namespace Example.Applications.Api.Controllers
         public async Task<IActionResult> Put([FromBody] CustomForm model)
         {
             var customForm = await _dbContext.CustomForms.SingleAsync(x=> x.Id == model.Id);
-            model.Populate(customForm);
+            customForm.FieldGroups = model.FieldGroups;
+            
             await _dbContext.SaveChangesAsync();
             return Ok(customForm);
         }
@@ -63,7 +64,7 @@ namespace Example.Applications.Api.Controllers
 
     public class CustomFormQuery
     {
-        public string Type { get;  set; }
+        public string Name { get;  set; }
     }
 
     public class SelectListController : Controller
@@ -73,7 +74,7 @@ namespace Example.Applications.Api.Controllers
         {
             _enumTypeMap = new[]
             {
-                typeof(FieldType)
+                typeof(PropertyType)
             }.ToImmutableDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         }
         
@@ -90,7 +91,8 @@ namespace Example.Applications.Api.Controllers
             return Ok(Enum.GetNames(enumType).Select(x => new
             {
                 label = enumType.GetField(x).GetCustomAttribute<DescriptionAttribute>()?.Description ?? x,
-                value = x
+                name = x,
+                value = (int)Enum.Parse(enumType, x)
             }).ToList());
         }
     }

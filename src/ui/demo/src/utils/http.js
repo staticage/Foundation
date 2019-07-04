@@ -4,7 +4,7 @@ import router from "../router";
 
 axios.defaults.timeout = 1000 * 60 * 3;
 
-axios.defaults.baseURL = "http://localhost:5000/";
+axios.defaults.baseURL = "http://localhost:5000/api/";
 
 // axios.defaults.baseURL = "http://148.70.19.204:8080/api/";
 axios.interceptors.request.use(
