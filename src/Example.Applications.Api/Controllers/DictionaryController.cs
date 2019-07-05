@@ -38,6 +38,7 @@ namespace Example.Applications.Api.Controllers
         [HttpPost("api/setting")]
         public async Task<IActionResult> Post([FromBody] Setting model)
         {
+            model.Items.ForEach((x, index) => x.Value = (index + 1).ToString());
             await _dbContext.AddAsync(model);
             await _dbContext.SaveChangesAsync();
             return Ok(model);
@@ -46,6 +47,7 @@ namespace Example.Applications.Api.Controllers
         [HttpPut("api/setting")]
         public async Task<IActionResult> Put([FromBody] Setting model)
         {
+            model.Items.ForEach((x, index) => x.Value = (index + 1).ToString());
             var setting = await _dbContext.Settings.SingleAsync(x => x.Id == model.Id);
             setting.Items = model.Items;
             setting.Name = model.Name;

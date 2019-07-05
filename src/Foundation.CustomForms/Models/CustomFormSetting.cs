@@ -47,7 +47,8 @@ namespace Foundation.CustomForm
         public class Item
         {
             public bool Enabled { get; set; }
-            public string Name { get; set; }
+            public string Value { get; set; }
+            public string Label { get; set; }
             public int SortNumber { get; set; }
         }
     }

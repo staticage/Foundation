@@ -15,6 +15,17 @@ namespace Foundation.Core
                 action(item);
             }
         }
+        
+        public static void ForEach<T>(this IEnumerable<T> @this, Action<T,int> action)
+        {
+            var index = -1;
+            var enumerator = @this.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                ++index;
+                action(enumerator.Current,index);
+            }
+        }
 
         public static bool IsNullOrEmpty(this IEnumerable @this)
         {

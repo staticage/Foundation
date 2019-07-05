@@ -23,6 +23,7 @@ namespace Foundation.CustomForm
     {
         public string Type { get; set; }
         public List<ValidationMethod> ValidationMethods { get; set; } = new List<ValidationMethod>();
+        public OptionsSetting Options { get; set; } = new OptionsSetting();
     }
     
 //    public enum FieldType

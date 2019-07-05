@@ -17,7 +17,7 @@
                 <el-table-column prop="name" label="名称" width="200"></el-table-column>
                 <el-table-column label="配置">
                     <template slot-scope="scope">
-                        <el-tag style="margin-right:5px" v-for="(item, index) in scope.row.items.filter(x=> x.enabled)" :key="index" type="info" effect="plain">{{ item.name }}</el-tag>
+                        <el-tag style="margin-right:5px" v-for="(item, index) in scope.row.items.filter(x=> x.enabled)" :key="index" type="info" effect="plain">{{ item.label }}</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column fixed="right" label="操作" width="80" align="right">
@@ -42,8 +42,8 @@
                         <el-form-item :label="item.sortNumber + '.'"></el-form-item>
                     </el-col>
                     <el-col :span="8">
-                        <el-form-item label="数据项" :prop="'items.' + index + '.name'" :rules="{required: true, message: '数据项不能为空', trigger: 'blur'}">
-                            <el-input v-model="item.name" placeholder="请输入数据项"></el-input>
+                        <el-form-item label="数据项" :prop="'items.' + index + '.label'" :rules="{required: true, message: '数据项不能为空', trigger: 'blur'}">
+                            <el-input v-model="item.label" placeholder="请输入数据项"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="8">

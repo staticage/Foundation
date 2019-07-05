@@ -38,7 +38,7 @@
                 </el-table-column>
                 <el-table-column prop="phone" label="字段选项">
                     <template slot-scope="scope">
-                        <OptionsEditor v-model="scope.row.input.validationMethods" />
+                        <OptionsEditor v-model="scope.row.input.options" :settings="settings" />
                     </template>
                 </el-table-column>
 
@@ -122,7 +122,8 @@ export default {
             customForm: {
                 name: ''
             },
-            rules: {}
+            rules: {},
+            settings: []
         };
     },
 
@@ -130,7 +131,7 @@ export default {
         this.user = this.$store.state.user;
         this.fieldTypes = ValidationMethods.getInputs();
         this.metadata = (await this.$axios.get("custom-form/_metadata")).data;
-
+        this.settings = (await this.$axios.post('setting/_query', {})).data
     },
     methods: {
         async onMetadataNameChanged(e) {
