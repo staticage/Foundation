@@ -1,77 +1,40 @@
 <template>
-    <div>
-        <HeaderLayout ref="header"></HeaderLayout>
-        <el-container style="border-bottom:solid 1px #F6F6F6;">
-            <el-aside
-                :width="asideWidth"
-                style="overflow:hidden;border-right: 1px solid rgb(246, 246, 246);"
-            >
-                <el-row
-                    style="height:35px; margin-top:5px; border-bottom:solid 1px #F6F6F6; border-right:solid 1px #F6F6F6;"
-                ></el-row>
-                <el-row>
-                    <el-menu
-                        :default-openeds="opendMenus"
-                        :default-active="currentRoutePath"
-                        :router="true"
-                        class="el-menu-vertical"
-                        :collapse="isCollapse"
-                    >
-                        <template v-for="(menu) in menuItems">
-                            <el-submenu
-                                v-if="menu.category"
-                                :index="menu.category"
-                                :key="menu.category"
-                            >
-                                <template slot="title">
-                                    <i v-if="menu.icon" :class="menu.icon"></i>
-                                    <span slot="title">{{menu.category}}</span>
-                                </template>
-                                <el-menu-item
-                                    v-for="item in menu.children"
-                                    :key="item.path"
-                                    :index="item.path"
-                                >{{item.meta.title}}</el-menu-item>
-                            </el-submenu>
-                            <el-menu-item
-                                v-if="!menu.category"
-                                :key="menu.path"
-                                :index="menu.path"
-                            >{{menu.meta.title}}</el-menu-item>
-                        </template>
-                    </el-menu>
-                </el-row>
+    <el-container :style="{height: (fullHeight ) + 'px'}">
+        <el-header style="height:145px;  padding:0">
+            <HeaderLayout ref="header"></HeaderLayout>
+            <el-row style="height:35px; line-height:35px; border-bottom:solid 0.5px #F6F6F6;border-top:solid 0.5px #F6F6F6;">
+                <div>
+                    <div style="width:201px;display: inline-block;"></div>
+                    <div style="display: inline-block;">
+                        <el-breadcrumb separator-class="el-icon-arrow-right" style="font-size:13px; margin-top:10px; margin-left:10px; padding-left:5px; border-left:2px solid #409EFF ">
+                            <el-breadcrumb-item v-for="item in matchedRoutes" :key="item.path" :to="{ path: item.path }">{{item.meta.title}}</el-breadcrumb-item>
+                        </el-breadcrumb>
+                    </div>
+                </div>
+            </el-row>
+        </el-header>
+
+        <el-container :style="{height: (fullHeight - 145) + 'px'}">
+            <el-aside :style="{height: (fullHeight - 145) + 'px',width: '201px', 'border-right':'1px solid #F6F6F6'}">
+                <el-menu style="border-right:none;" :default-openeds="opendMenus" :default-active="currentRoutePath" :router="true" class="el-menu-vertical" :collapse="isCollapse">
+                    <template v-for="(menu) in menuItems">
+                        <el-submenu v-if="menu.category" :index="menu.category" :key="menu.category">
+                            <template slot="title">
+                                <i v-if="menu.icon" :class="menu.icon"></i>
+                                <span slot="title">{{menu.category}}</span>
+                            </template>
+                            <el-menu-item v-for="item in menu.children" :key="item.path" :index="item.path">{{item.meta.title}}</el-menu-item>
+                        </el-submenu>
+                        <el-menu-item v-if="!menu.category" :key="menu.path" :index="menu.path">{{menu.meta.title}}</el-menu-item>
+                    </template>
+                </el-menu>
             </el-aside>
-            <el-container>
-                <el-header style="height:40px; border-bottom:1px solid #F6F6F6; padding:0;">
-                    <el-breadcrumb
-                        separator-class="el-icon-arrow-right"
-                        style="font-size:12px; margin-top:15px; margin-left:15px;  padding-left:5px; border-left:2px solid #409EFF "
-                    >
-                        <el-breadcrumb-item
-                            v-for="item in matchedRoutes"
-                            :key="item.path"
-                            :to="{ path: item.path }"
-                        >{{item.meta.title}}</el-breadcrumb-item>
-                    </el-breadcrumb>
-                </el-header>
-                <el-main style="padding:0;">
-                    <el-row :style="{ height: (fullHeight - 200) +'px',padding:'15px'}">
-                        <router-view/>
-                    </el-row>
-                </el-main>
-                <el-footer style="height:28px;">
-                    <el-row>
-                        <el-col :span="12">
-                            使用帮助&nbsp;&nbsp;|&nbsp;&nbsp;
-                            <i class="el-icon-location-outline"></i>SelectRegion
-                        </el-col>
-                        <el-col :span="12" style="text-align: right;">版权所有：西安华卓信息科技有限公司</el-col>
-                    </el-row>
-                </el-footer>
-            </el-container>
+
+            <el-main :style="{height: (fullHeight - 145) + 'px'}">
+                <router-view />
+            </el-main>
         </el-container>
-    </div>
+    </el-container>
 </template>
 
 
@@ -105,6 +68,7 @@ export default {
         this.$router.afterEach(this.findRoute);
         this.matchedRoutes = this.$router.currentRoute.matched;
         this.findRoute();
+        this.handleResize();
     },
 
     methods: {
@@ -154,21 +118,19 @@ export default {
         },
         handleResize() {
             this.fullHeight = document.documentElement.clientHeight;
-            bus.$emit("fullHeightChanged", this.fullHeight);
+            // bus.$emit("fullHeightChanged", this.fullHeight);
         },
         toggleClick() {
-            this.isCollapse = !this.isCollapse;
-            if (this.isCollapse === true) {
-                this.asideWidth = "55px";
-            } else {
-                this.asideWidth = "200px";
-            }
+            // this.isCollapse = !this.isCollapse;
+            // if (this.isCollapse === true) {
+            //     this.asideWidth = "55px";
+            // } else {
+            //     this.asideWidth = "200px";
+            // }
         }
     },
 
-    beforeDestory() {
-        window.removeEventListener("resize", this.handleResize);
-    }
+
 };
 </script>
 <style scoped>

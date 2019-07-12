@@ -1,6 +1,7 @@
 <template>
     <section>
         <el-row class="button-top-row">
+            {{customForm}}
             <el-button-group>
                 <el-button type="primary" size="mini" @click="create" icon="el-icon-circle-plus">新增</el-button>
             </el-button-group>
@@ -26,7 +27,7 @@
             </el-table>
             <el-pagination :current-page="query.page" :page-sizes="[10, 20, 30, 40]" :page-size="query.pageSize" layout="total,prev,pager,next,sizes,jumper" :total="resource.total" @size-change="handleSizeChange" @current-change="handleCurrentChange"></el-pagination>
         </el-row>
-        <el-dialog :close-on-click-modal="false" title="机构信息" :visible.sync="dialogFormVisible" width="30%">
+        <!-- <el-dialog :close-on-click-modal="false" title="机构信息" :visible.sync="dialogFormVisible" width="30%">
             <el-form ref="dialogForm" :rules="rules" :model="dialogForm" label-width="80px">
                 <el-form-item label="机构名称" prop="name">
                     <el-input v-model="dialogForm.name" placeholder="请输入机构名称"></el-input>
@@ -60,7 +61,7 @@
                 <el-button @click="cancel">取 消</el-button>
                 <el-button type="primary" @click="save">确 定</el-button>
             </div>
-        </el-dialog>
+        </el-dialog>-->
     </section>
 </template>
 <script >
@@ -87,7 +88,7 @@ export default {
     },
 
     async mounted() {
-        this.customForm = (await this.$axios.get('api/custom-from/2')).data
+        this.customForm = (await this.$axios.get(`custom-form/${this.$route.params.id}`)).data
     },
     methods: {
         handleSizeChange(pageSize) {
@@ -100,10 +101,7 @@ export default {
             this.search();
         },
         async search() {
-            this.resource = (await this.$axios.post(
-                api.company + "/query",
-                this.query
-            )).data;
+            this.resource = (await this.$axios.post(`entity/${this.customForm.name}/_query`, {})).data;
         },
         create() {
             this.dialogForm = { id: "" };

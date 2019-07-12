@@ -1,11 +1,26 @@
 <template>
     <div id="app">
-        <router-view/>
+        <!-- <el-container style="height: 610px;">
+            <el-header style="height:145px">
+                <el-row style="height:35px; margin-top:5px; border-bottom:solid 1px #F6F6F6; border-right:solid 1px #F6F6F6;">123123123</el-row>
+            </el-header>
+            <el-main>
+                <el-container style="border-bottom:solid 1px #F6F6F6;height: 500px;">
+                    <el-main>
+                        <CustomForm />
+                    </el-main>
+                </el-container>
+            </el-main>
+        </el-container>-->
+        <router-view />
     </div>
 </template>
 
 <script>
+import CustomForm from "./views/system/custom-form/index";
 export default {
+    components: { CustomForm }
+
 
 };
 </script>

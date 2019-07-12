@@ -1,4 +1,5 @@
 using System.Reflection;
+using Foundation.Core;
 using Foundation.CustomForm.Attributes;
 
 namespace Foundation.CustomForm
@@ -15,6 +16,8 @@ namespace Foundation.CustomForm
             return new PropertyMetadata
             {
                 Name = propertyInfo.Name,
+                Type = propertyInfo.PropertyType.GetDisplayName(),
+                // DefaultValue = propertyInfo.PropertyType.GetDefaultValue()
                 Label = propertyInfo.GetCustomAttribute<FormFieldAttribute>()?.Label ?? propertyInfo.Name
             };
         }

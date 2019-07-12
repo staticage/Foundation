@@ -129,6 +129,14 @@ const routes = [
                     role: "自定义表单",
                     hidden: true
                 }
+            }, {
+                path: "custom-form/:id/list",
+                component: () => import("$v/system/custom-form/list.vue"),
+                meta: {
+                    title: "自定义表单列表",
+                    role: "自定义表单",
+                    hidden: true
+                }
             },
             {
                 path: "/system/apartment",

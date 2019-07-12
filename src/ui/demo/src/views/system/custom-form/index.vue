@@ -1,5 +1,6 @@
 <template>
     <section>
+        {{customForm}}
         <el-row class="button-top-row">
             <el-col :span="12">
                 <el-select v-model="metadataName" placeholder="请选择" @change="onMetadataNameChanged">
@@ -8,6 +9,7 @@
             </el-col>
             <el-col :span="12">
                 <el-button type="primary" :disabled="!customForm || !customForm.id" @click="preview">预览</el-button>
+                <el-button type="primary" :disabled="!customForm || !customForm.id" @click="list">列表</el-button>
             </el-col>
         </el-row>
         <el-row>
@@ -15,6 +17,7 @@
                 <el-button type="primary" @click="save">保存</el-button>
             </el-col>
         </el-row>
+
         <el-row class="table-row" v-for="(item, index) in this.customForm.fieldGroups" :key="index">
             <el-input v-model="item.label" placeholder></el-input>
             <el-table :data="item.fields">
@@ -166,6 +169,9 @@ export default {
         },
         async preview() {
             this.$router.push(`/system/custom-form/${this.customForm.id}/preview`);
+        },
+        async list() {
+            this.$router.push(`/system/custom-form/${this.customForm.id}/list`);
         },
         async search() {
             this.resource = (await this.$axios.post(

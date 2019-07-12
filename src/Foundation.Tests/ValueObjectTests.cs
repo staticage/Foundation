@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using FluentAssertions;
+using Foundation.Core;
 using Foundation.DDD;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -65,6 +68,46 @@ namespace Tests
             var fakedName = new FakeName(firstName: "Alex",lastName: "Liu");
 
             name.Equals(fakedName).Should().BeFalse();
+        }
+        
+        [Test]
+        public void TypeNameTests()
+        {
+            var type = typeof(string);
+            Console.WriteLine(type.GetDisplayName());
+            Console.WriteLine(type.Name);
+            Console.WriteLine(type.FullName);
+            Console.WriteLine(type.AssemblyQualifiedName);
+            
+            type = typeof(DateTime?);
+            
+            Console.WriteLine(type.GetDisplayName());
+            Console.WriteLine(type.Name);
+            Console.WriteLine(type.FullName);
+            Console.WriteLine(type.AssemblyQualifiedName);
+            
+            type = typeof(string[]);
+            
+            Console.WriteLine(type.GetDisplayName());
+            Console.WriteLine(type.Name);
+            Console.WriteLine(type.FullName);
+            Console.WriteLine(type.AssemblyQualifiedName);
+            
+            
+            type = typeof(string[,,,]);
+            
+            Console.WriteLine(type.GetDisplayName());
+            Console.WriteLine(type.Name);
+            Console.WriteLine(type.FullName);
+            Console.WriteLine(type.AssemblyQualifiedName);
+            
+            
+            type = typeof(Dictionary<string[,,,],int[,,,]>);
+            
+            Console.WriteLine(type.GetDisplayName());
+            Console.WriteLine(type.Name);
+            Console.WriteLine(type.FullName);
+            Console.WriteLine(type.AssemblyQualifiedName);
         }
     }
 }

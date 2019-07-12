@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Example.Applications.Domain;
 using Foundation.CustomForm;
 using Foundation.CustomForm.Services;
+using Foundation.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
@@ -28,19 +29,38 @@ namespace Example.Applications.Api.Controllers
             throw new NotImplementedException();
         }
         
+        [HttpPost("api/entity/{name}/_query")]
+        public async Task<IActionResult> Query(string name,[FromBody]JToken jsonBody)
+        {
+            var metadata = _customFormProvider.FindCustomFormMetadata(typeof(Customer).Assembly).Single(x =>
+                x.TypeMetadata.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase));
+            var entityType = Type.GetType(metadata.TypeMetadata.AssemblyQualifiedName);
+            
+//            await _dbContext.Query(entityType).
+            throw new NotImplementedException();
+        }
+        
         [HttpPost("api/entity/{name}")]
         public async Task<IActionResult> Get(string name,[FromBody]JToken jsonBody)
         {
 //            var customForm =  await _dbContext.Customers.SingleAsync(x=> x.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase));
-            
-            var metadata = _customFormProvider.FindCustomFormMetadata(typeof(Customer).Assembly).Single(x =>
-                x.TypeMetadata.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase));
+            try
+            {
+                var metadata = _customFormProvider.FindCustomFormMetadata(typeof(Customer).Assembly).Single(x =>
+                    x.TypeMetadata.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase));
              
-            var entityType = Type.GetType(metadata.TypeMetadata.AssemblyQualifiedName);
-            var entity = jsonBody?.ToObject(entityType);
-            await _dbContext.AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
-            return Ok();
+                var entityType = Type.GetType(metadata.TypeMetadata.AssemblyQualifiedName);
+                var entity = jsonBody?.ToObject(entityType);
+                await _dbContext.AddAsync(entity);
+                await _dbContext.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
         }
     }
     

@@ -1,6 +1,8 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 
@@ -25,6 +27,14 @@ namespace Foundation.Data
                 await @this.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync());
         }
 
-        public static Task<PagedList<TSource>> ToPagedListAsync<TSource>(this IQueryable<TSource> @this, IPagedQuery query) => @this.ToPagedListAsync(query.Page, query.PageSize); 
-    }
+        public static Task<PagedList<TSource>> ToPagedListAsync<TSource>(this IQueryable<TSource> @this, IPagedQuery query) => @this.ToPagedListAsync(query.Page, query.PageSize);
+        
+       
+            public static IQueryable Query(this DbContext context, string entityName) =>
+                context.Query(context.Model.FindEntityType(entityName).ClrType);
+
+            public static IQueryable Query(this DbContext context, Type entityType) =>
+                (IQueryable)((IDbSetCache)context).GetOrAddSet(context.GetDependencies().SetSource, entityType);
+        }
+    
 }

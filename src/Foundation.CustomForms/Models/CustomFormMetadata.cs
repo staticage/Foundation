@@ -18,7 +18,7 @@ namespace Foundation.CustomForm
             {
                 TypeMetadata = TypeMetadata.Create(type),
                 Label  = type.GetCustomAttribute<CustomFormAttribute>().Label,
-                Properties = type.GetProperties().Where(x=> x.GetCustomAttribute<FormFieldAttribute>()!=null).Select(x=> PropertyMetadata.Create(x)).ToList()
+                Properties = type.GetProperties().Where(x=> x.GetCustomAttribute<FormFieldAttribute>()!=null).Select(PropertyMetadata.Create).ToList()
             };
         }
     }
