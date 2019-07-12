@@ -33,8 +33,8 @@ namespace Foundation.Data
             public static IQueryable Query(this DbContext context, string entityName) =>
                 context.Query(context.Model.FindEntityType(entityName).ClrType);
 
-            public static IQueryable Query(this DbContext context, Type entityType) =>
-                (IQueryable)((IDbSetCache)context).GetOrAddSet(context.GetDependencies().SetSource, entityType);
+            public static IQueryable<object> Query(this DbContext context, Type entityType) =>
+                (IQueryable<object>)((IDbSetCache)context).GetOrAddSet(context.GetDependencies().SetSource, entityType);
         }
     
 }

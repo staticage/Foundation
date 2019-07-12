@@ -9,7 +9,7 @@ namespace Foundation.CustomForm
     public class CustomFormMetadata
     {
         public TypeMetadata TypeMetadata { get; set; }
-        public List<PropertyMetadata> Properties { get; set; }
+        public List<PropertyMetadata> Fields { get; set; }
         public string Label { get; set; }
         
         public static CustomFormMetadata Create(Type type)
@@ -18,7 +18,7 @@ namespace Foundation.CustomForm
             {
                 TypeMetadata = TypeMetadata.Create(type),
                 Label  = type.GetCustomAttribute<CustomFormAttribute>().Label,
-                Properties = type.GetProperties().Where(x=> x.GetCustomAttribute<FormFieldAttribute>()!=null).Select(PropertyMetadata.Create).ToList()
+                Fields = type.GetProperties().Where(x=> x.GetCustomAttribute<FormFieldAttribute>()!=null).Select(PropertyMetadata.Create).ToList()
             };
         }
     }

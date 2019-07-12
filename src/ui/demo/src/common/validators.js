@@ -291,6 +291,10 @@ const ValidationMethods = {
         { value: "mobile", label: "手机号码", pattern: /^1[3|4|5|7|8][0-9]{9}$/ },
         { value: "url", label: "网址", pattern: /^(http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?$/ },
     ],
+    fieldTypeMap: {
+        "String": { input: { excludes: ["checkbox"] } },
+        "Int32": { input: { includes: ["number"] } },
+    },
     // [Description("文本")]
     //     Text,
 
@@ -321,16 +325,16 @@ const ValidationMethods = {
     //     [Description("富文本")]
     //     RichText
     inputs: {
-        text: { label: "文本", trigger: "blur", defaultValue:() => ""  },
-        number: { label: "数字", trigger: "blur" , defaultValue:() => 0  },
-        textarea: { label: "多行文本", trigger: "blur", defaultValue:() => ""   },
-        date: { label: "日期", trigger: "change", defaultValue:() => new Date() },
-        image: { label: "图片", trigger: "change", defaultValue:() => ""  },
-        dropdown: { label: "下拉选框", trigger: "change", defaultValue:() => "" },
-        checkbox: { label: "多选框", trigger: "change", defaultValue:() => [] },
-        radio: { label: "单选框", trigger: "change", defaultValue:() => "" },
-        switch: { label: "开关", trigger: "change", defaultValue:() => false },
-        rich_text: { label: "富文本", trigger: "blur", defaultValue:() => "" },
+        text: { label: "文本", trigger: "blur", defaultValue: () => "" },
+        number: { label: "数字", trigger: "blur", defaultValue: () => 0 },
+        textarea: { label: "多行文本", trigger: "blur", defaultValue: () => "" },
+        date: { label: "日期", trigger: "change", defaultValue: () => new Date() },
+        image: { label: "图片", trigger: "change", defaultValue: () => "" },
+        dropdown: { label: "下拉选框", trigger: "change", defaultValue: () => "" },
+        checkbox: { label: "多选框", trigger: "change", defaultValue: () => [] },
+        radio: { label: "单选框", trigger: "change", defaultValue: () => "" },
+        switch: { label: "开关", trigger: "change", defaultValue: () => false },
+        rich_text: { label: "富文本", trigger: "blur", defaultValue: () => "" },
     },
     getInputs() {
         return Object.keys(this.inputs).map(x => ({ value: x, label: this.inputs[x].label }))

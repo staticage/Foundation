@@ -139,7 +139,7 @@ export default {
     methods: {
         async onMetadataNameChanged(e) {
             const meta = this.metadata.filter(x => x.typeMetadata.name === this.metadataName)[0];
-            const fields = meta.properties.map(x => ({ name: x.name, label: x.label, isShowInTable: true, input: { type: 'text', validatonMethods: [] } }));
+            const fields = meta.fields.map(x => ({ name: x.name, label: x.label, type: x.type, isShowInTable: true, input: { type: 'text', validatonMethods: [] } }));
             const existCustomForms = (await this.$axios.post("custom-form/_query", { name: this.metadataName })).data
 
             if (existCustomForms && existCustomForms.length) {

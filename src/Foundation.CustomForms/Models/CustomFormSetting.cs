@@ -21,7 +21,7 @@ namespace Foundation.CustomForm
                     new CustomFieldGroup
                     {
                         Label = "基本信息",
-                        Fields = metadata.Properties.Select(x=> new CustomField
+                        Fields = metadata.Fields.Select(x=> new CustomField
                         { 
                             Name = x.Name,
                             Input = new FieldInput

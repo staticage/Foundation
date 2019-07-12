@@ -2,28 +2,15 @@
     <section>
         <el-row class="button-top-row">
             {{customForm}}
+            {{resource}}
             <el-button-group>
                 <el-button type="primary" size="mini" @click="create" icon="el-icon-circle-plus">新增</el-button>
             </el-button-group>
         </el-row>
-        <el-row class="search-row el-form el-form--inline">
-            <el-col :span="24">
-                <label>机构名称：</label>
-                <el-input v-model="query.name" placeholder="机构名称"></el-input>
-                <el-button type="primary" icon="el-icon-search" @click="search">查询</el-button>
-            </el-col>
-        </el-row>
+
         <el-row class="table-row">
-            <el-table :data="resource.items">
-                <el-table-column prop="name" label="机构名称"></el-table-column>
-                <el-table-column prop="corporation" label="机构法人"></el-table-column>
-                <el-table-column prop="phone" label="账户名称"></el-table-column>
-                <el-table-column fixed="right" label="操作">
-                    <template slot-scope="scope">
-                        <el-button @click="editShow(scope.row.id)" type="text" v-if="$hasPermission('编辑')">编辑</el-button>
-                        <el-button @click="remove(scope.row.id)" type="text" v-if="$hasPermission('删除')">删除</el-button>
-                    </template>
-                </el-table-column>
+            <el-table :data="resource">
+                <el-table-column v-for="field in tableFields" :key="field.name" :prop="field.name" :label="field.label"></el-table-column>
             </el-table>
             <el-pagination :current-page="query.page" :page-sizes="[10, 20, 30, 40]" :page-size="query.pageSize" layout="total,prev,pager,next,sizes,jumper" :total="resource.total" @size-change="handleSizeChange" @current-change="handleCurrentChange"></el-pagination>
         </el-row>
@@ -75,20 +62,29 @@ export default {
             type: Number
         }
     },
+    computed: {
+        tableFields() {
+            return this.fields.filter(x => x.isShowInTable)
+        }
+    },
     data() {
         return {
             customForm: {},
             query: {},
-            resource: {},
+            resource: [],
             dialogFormVisible: false,
             loading: false,
             user: {},
-
+            fields: []
         };
     },
 
     async mounted() {
         this.customForm = (await this.$axios.get(`custom-form/${this.$route.params.id}`)).data
+        this.fields = this.customForm.fieldGroups
+            .map(x => x.fields)
+            .reduce((x, y) => x.concat(y), [])
+        this.search();
     },
     methods: {
         handleSizeChange(pageSize) {
@@ -102,6 +98,7 @@ export default {
         },
         async search() {
             this.resource = (await this.$axios.post(`entity/${this.customForm.name}/_query`, {})).data;
+            console.log(this.resource);
         },
         create() {
             this.dialogForm = { id: "" };
