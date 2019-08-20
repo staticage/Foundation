@@ -122,16 +122,26 @@ const routes = [
                 }
             },
             {
-                path: "custom-form/:id/preview",
-                component: () => import("$v/system/custom-form/preview.vue"),
+                path: "custom-form/:customFormId/create",
+                component: () => import("$v/system/custom-form/edit.vue"),
                 meta: {
                     title: "自定义表单预览",
                     role: "自定义表单",
                     hidden: true
                 }
-            }, {
+            },
+            {
                 path: "custom-form/:id/list",
                 component: () => import("$v/system/custom-form/list.vue"),
+                meta: {
+                    title: "自定义表单列表",
+                    role: "自定义表单",
+                    hidden: true
+                }
+            },
+            {
+                path: "custom-form/:customFormId/edit/:id",
+                component: () => import("$v/system/custom-form/edit.vue"),
                 meta: {
                     title: "自定义表单列表",
                     role: "自定义表单",

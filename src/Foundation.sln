@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Applications.Domain
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foundation.CustomForm.Tests", "Foundation.CustomForm.Tests\Foundation.CustomForm.Tests.csproj", "{92E772CE-9E66-46AF-BE54-4D86382705F4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Foundation.BpmNet", "Foundation.BpmNet\Foundation.BpmNet.csproj", "{D8AD92BE-73DA-402D-936E-051AEB515C88}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{92E772CE-9E66-46AF-BE54-4D86382705F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92E772CE-9E66-46AF-BE54-4D86382705F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92E772CE-9E66-46AF-BE54-4D86382705F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8AD92BE-73DA-402D-936E-051AEB515C88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8AD92BE-73DA-402D-936E-051AEB515C88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8AD92BE-73DA-402D-936E-051AEB515C88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8AD92BE-73DA-402D-936E-051AEB515C88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4BB33D66-B52A-411F-9BD4-0D1B0425E551} = {23B1B6FC-7647-4C83-AB84-A75C8D749F09}

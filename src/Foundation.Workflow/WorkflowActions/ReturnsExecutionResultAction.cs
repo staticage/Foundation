@@ -1,10 +1,10 @@
 namespace Foundation.Workflow
 {
-    public class ReturnsEventAction : IEventAction
+    public class ReturnsExecutionResultAction : IWorkflowAction
     {
         private readonly ExecutionResult _executionResult;
 
-        public ReturnsEventAction(ExecutionResult executionResult)
+        public ReturnsExecutionResultAction(ExecutionResult executionResult)
         {
             _executionResult = executionResult;
         }

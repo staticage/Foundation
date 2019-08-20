@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 namespace Foundation.Workflow
 {
     public class WorkflowDefinition
     {
-        public string Id { get; set; }
+        public string Name { get; set; }
         public int Version { get; set; }
         public string Description { get; set; }
         public List<StepDefinition> Steps { get; set; } = new List<StepDefinition>();
@@ -31,7 +32,9 @@ namespace Foundation.Workflow
 
     public class WorkflowActionEvent
     {
+        public Guid ExecutionPointerId { get; set; }
         public Guid ActorId { get; set; }
         public string Action { get; set; }
+        public JObject ActionData { get; set; }
     }
 }

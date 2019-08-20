@@ -1,16 +1,27 @@
 <template>
     <section>
         <el-row class="button-top-row">
-            {{customForm}}
-            {{resource}}
             <el-button-group>
                 <el-button type="primary" size="mini" @click="create" icon="el-icon-circle-plus">新增</el-button>
             </el-button-group>
         </el-row>
-
+        <el-row class="search-row el-form el-form--inline">
+            <el-col :span="8" v-for="(field, index) in queryFields" :key="index">
+                <label>{{field.label}}：</label>
+                <el-input v-model="query[field.name]" :placeholder="field.label"></el-input>
+            </el-col>
+            <el-button type="primary" icon="el-icon-search" @click="search">查询</el-button>
+        </el-row>
         <el-row class="table-row">
             <el-table :data="resource">
+                <el-table-column prop="Id" label="#" width="40"></el-table-column>
                 <el-table-column v-for="field in tableFields" :key="field.name" :prop="field.name" :label="field.label"></el-table-column>
+                <el-table-column align="right" label="操作">
+                    <template slot-scope="scope">
+                        <el-button @click="edit(scope.row.Id)" type="text">编辑</el-button>
+                        <el-button @click="details(scope.row,'details')" type="text">查看</el-button>
+                    </template>
+                </el-table-column>
             </el-table>
             <el-pagination :current-page="query.page" :page-sizes="[10, 20, 30, 40]" :page-size="query.pageSize" layout="total,prev,pager,next,sizes,jumper" :total="resource.total" @size-change="handleSizeChange" @current-change="handleCurrentChange"></el-pagination>
         </el-row>
@@ -65,6 +76,9 @@ export default {
     computed: {
         tableFields() {
             return this.fields.filter(x => x.isShowInTable)
+        },
+        queryFields() {
+            return this.fields.filter(x => x.queryOptions && x.queryOptions.type)
         }
     },
     data() {
@@ -97,15 +111,15 @@ export default {
             this.search();
         },
         async search() {
-            this.resource = (await this.$axios.post(`entity/${this.customForm.name}/_query`, {})).data;
+            console.log(this.query);
+            this.resource = (await this.$axios.post(`entity/${this.customForm.name}/_query`, this.query)).data;
             console.log(this.resource);
         },
         create() {
-            this.dialogForm = { id: "" };
-            this.dialogFormVisible = true;
-            if (this.$refs["dialogForm"]) {
-                this.$refs["dialogForm"].clearValidate();
-            }
+            this.$router.push(`/system/custom-form/${this.customForm.id}/create`);
+        },
+        edit(id) {
+            this.$router.push(`/system/custom-form/${this.customForm.id}/edit/${id}`);
         },
         async remove(id) {
             this.$axi

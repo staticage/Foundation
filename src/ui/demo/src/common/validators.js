@@ -292,9 +292,17 @@ const ValidationMethods = {
         { value: "url", label: "网址", pattern: /^(http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-.,@?^=%&:/~+#]*[\w\-@?^=%&/~+#])?$/ },
     ],
     fieldTypeMap: {
-        "String": { input: { excludes: ["checkbox"] } },
-        "Int32": { input: { includes: ["number"] } },
+        "String": { input: ["checkbox"] },
+        "Int32": { input: ["number"] },
+        "Int32?": { input: ["number"] },
+        "DateTime": { input: ["date"] },
+        "DateTime?": { input: ["date"] },
+        "String[]": { input: ["checkbox"] },
     },
+    queryOptions: [
+        { value: 1, label: "精确查询" },
+        { value: 2, label: "模糊查询" },
+    ],
     // [Description("文本")]
     //     Text,
 

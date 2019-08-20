@@ -23,7 +23,7 @@ namespace Foundation.Workflow
 
         public async Task<Guid> StartWorkflow(string name, int version = 0)
         {
-            var definition = await _registrar.GetWorkflowDefinition(name, version);
+            var definition =  _registrar.GetWorkflowDefinition(name, version);
             var workflowId = Guid.NewGuid();
             var workflow = Workflow.Start(workflowId,definition);
             workflow.StartStep(definition.Steps.First().Id);
@@ -35,9 +35,9 @@ namespace Foundation.Workflow
         public async Task PublishActionEvent(Guid workflowId, WorkflowActionEvent evt)
         {
             var workflow = await _repository.GetWorkflow(workflowId);
-            var definition = await _registrar.GetWorkflowDefinition(workflow.WorkflowDefinitionId, workflow.Version);
+            var definition =  _registrar.GetWorkflowDefinition(workflow.WorkflowDefinitionName, workflow.Version);
             
-            await _executor.ExecuteWorkflow(definition, workflowId, evt);
+            await _executor.ExecuteWorkflowAction(definition, workflowId, evt);
         }
         
     }

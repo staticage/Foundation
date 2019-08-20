@@ -12,11 +12,13 @@ namespace Foundation.Workflow
             return new ExecutionResult {Proceed = true, NextStepId = nextStepId};
         }
 
-        public static ExecutionResult WaitForEvent(string eventKey)
+        public static ExecutionResult WaitForActionEvent(string eventKey) => WaitForEvent(nameof(WorkflowActionEvent), eventKey);
+        
+        public static ExecutionResult WaitForEvent(string eventName,string eventKey)
         {
             return new ExecutionResult
             {
-                EventName = nameof(WorkflowActionEvent),
+                EventName = eventName,
                 EventKey = eventKey
             };
         }

@@ -30,7 +30,7 @@
                 <el-table-column label="字段类型" width="120">
                     <template slot-scope="scope">
                         <el-select v-model="scope.row.input.type" placeholder="请选择">
-                            <el-option v-for="item in fieldTypes" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            <el-option v-for="item in getFieldInputTypes(scope.row)" :key="item.value" :label="item.label" :value="item.value"></el-option>
                         </el-select>
                     </template>
                 </el-table-column>
@@ -44,7 +44,11 @@
                         <OptionsEditor v-model="scope.row.input.options" :settings="settings" />
                     </template>
                 </el-table-column>
-
+                <el-table-column prop="phone" label="查询选项">
+                    <template slot-scope="scope">
+                        <QueryOptionsEditor v-model="scope.row.queryOptions" :settings="settings" />
+                    </template>
+                </el-table-column>
                 <el-table-column align="center" width="70" prop="phone" label="列表显示">
                     <template slot-scope="scope">
                         <el-switch v-model="scope.row.isShowInTable"></el-switch>
@@ -96,8 +100,9 @@ import _ from "lodash";
 import validators, { ValidationMethods } from "../../../common/validators";
 import ValidationMethodsEdtior from "../../../components/ValidationMethodsEditor";
 import OptionsEditor from "../../../components/OptionsEditor";
+import QueryOptionsEditor from "../../../components/QueryOptionsEditor";
 export default {
-    components: { ValidationMethodsEdtior, OptionsEditor },
+    components: { ValidationMethodsEdtior, OptionsEditor, QueryOptionsEditor },
     data() {
         return {
             type: '',
@@ -137,6 +142,9 @@ export default {
         this.settings = (await this.$axios.post('setting/_query', {})).data
     },
     methods: {
+        getFieldInputTypes(field) {
+            var avilableInputs = this.fieldTypes.filter(x => ValidationMethods.fieldTypeMap[field.type].indexOf(x.value) > -1)
+        },
         async onMetadataNameChanged(e) {
             const meta = this.metadata.filter(x => x.typeMetadata.name === this.metadataName)[0];
             const fields = meta.fields.map(x => ({ name: x.name, label: x.label, type: x.type, isShowInTable: true, input: { type: 'text', validatonMethods: [] } }));

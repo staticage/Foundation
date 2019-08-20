@@ -13,30 +13,28 @@ namespace Foundation.Workflow
 
     public interface IWorkflowDefinitionRegistrar
     {
-        Task RegisterWorkflowDefinition(WorkflowDefinition definition);
-        Task<WorkflowDefinition> GetWorkflowDefinition(string name, int version);
+        void RegisterWorkflowDefinition(WorkflowDefinition definition);
+        WorkflowDefinition GetWorkflowDefinition(string workflowName, int version = 1);
     }
 
     public class WorkflowDefinitionRegistrar : IWorkflowDefinitionRegistrar
     {
-        IDictionary<string, List<WorkflowDefinition>> _definitions = new Dictionary<string, List<WorkflowDefinition>>();
-        
-        public Task RegisterWorkflowDefinition( WorkflowDefinition definition)
-        {
-            if (!_definitions.ContainsKey(definition.Id))
-            {
-                _definitions.Add(definition.Id, new List<WorkflowDefinition>());
-            }
+        private readonly IDictionary<Tuple<string,int>, WorkflowDefinition> _definitions = new Dictionary<Tuple<string,int>, WorkflowDefinition>();
 
-            _definitions[definition.Id].Add(definition);
-            return Task.CompletedTask;
+        public void RegisterWorkflowDefinition(WorkflowDefinition definition)
+        {
+            var key = new Tuple<string,int>(definition.Name, definition.Version);
+            if (_definitions.ContainsKey(key))
+            {
+                throw new InvalidOperationException($"Duplicate workflow with name: {definition.Name} version: {definition.Version}");
+            }
+            _definitions.Add(key, definition);
         }
 
-        public Task<WorkflowDefinition> GetWorkflowDefinition(string workflowDefinitionId, int version)
+        public WorkflowDefinition GetWorkflowDefinition(string workflowName, int version)
         {
-            var definitions = _definitions[workflowDefinitionId];
-            var definition = version > 0 ? definitions[version - 1] : definitions.Last();
-            return Task.FromResult(definition);
+            var key = new Tuple<string,int>(workflowName, version);
+            return _definitions[key];
         }
     }
 }

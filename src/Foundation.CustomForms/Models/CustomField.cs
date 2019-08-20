@@ -10,6 +10,7 @@ namespace Foundation.CustomForm
         public string Label { get; set; }
         public FieldInput Input { get; set; }
         public bool IsShowInTable { get; set; }
+        public QueryOptions QueryOptions { get; set; }
         
     }
 
@@ -24,6 +25,11 @@ namespace Foundation.CustomForm
         public string Type { get; set; }
         public List<ValidationMethod> ValidationMethods { get; set; } = new List<ValidationMethod>();
         public OptionsSetting Options { get; set; } = new OptionsSetting();
+    }
+
+    public class QueryOptions
+    {
+        public QueryType Type { get; set; }
     }
     
 //    public enum FieldType

@@ -43,7 +43,7 @@ namespace Foundation.Workflow
             }
         }
 
-        public async Task ExecuteWorkflow(WorkflowDefinition definition, Guid workflowId, WorkflowActionEvent evt)
+        public async Task ExecuteWorkflowAction(WorkflowDefinition definition, Guid workflowId, WorkflowActionEvent evt)
         {
             using (var scope = _serviceProvider.CreateScope())
             {
@@ -84,20 +84,23 @@ namespace Foundation.Workflow
             {
                 context.ExecutionPointer.Complete();
 
-                var nextStepId = result.NextStepId ?? context.WorkflowDefinition.GetNextStepId(context.ExecutionPointer.StepId);
-                if (nextStepId != null)
+                if (context.Workflow.Status == WorkflowStatus.Running)
                 {
-                    var newContext = new StepExecutionContext
+                    var nextStepId = result.NextStepId ?? context.WorkflowDefinition.GetNextStepId(context.ExecutionPointer.StepId);
+                    if (nextStepId != null)
                     {
-                        Workflow = context.Workflow,
-                        ExecutionPointer = context.Workflow.StartStep(nextStepId),
-                        WorkflowDefinition = context.WorkflowDefinition
-                    };
-                    await ExecuteExecutionPointer(scope, newContext);
-                }
-                else
-                {
-                    context.Workflow.Complete();
+                        var newContext = new StepExecutionContext
+                        {
+                            Workflow = context.Workflow,
+                            ExecutionPointer = context.Workflow.StartStep(nextStepId),
+                            WorkflowDefinition = context.WorkflowDefinition
+                        };
+                        await ExecuteExecutionPointer(scope, newContext);
+                    }
+                    else
+                    {
+                        context.Workflow.Complete();
+                    }    
                 }
             }
             else
@@ -110,7 +113,7 @@ namespace Foundation.Workflow
 
         private IStepBody BuildStep(IServiceScope scope, WorkflowDefinition definition, ExecutionPointer executionPointer)
         {
-            var stepDefinition = definition.Steps.SingleOrDefault(x => x.Id == executionPointer.StepId);
+            var stepDefinition = definition.Steps.Single(x => x.Id == executionPointer.StepId);
             return (IStepBody) scope.ServiceProvider.GetService(stepDefinition.BodyType);
         }
     }

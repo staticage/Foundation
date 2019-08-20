@@ -6,7 +6,9 @@ namespace Foundation.Workflow
     public class StepDefinition
     {
         public string Id { get; set; }
+        public string Name { get; set; }
         public Type BodyType { get; set; }
-        public List<EventActionDefinition> Actions { get; set; } = new List<EventActionDefinition>();
+        public List<WorkflowActionDefinition> Actions { get; set; } = new List<WorkflowActionDefinition>();
+        public Dictionary<string, Func<object>> Parameters { get; set; } = new Dictionary<string, Func<object>>();
     }
 }

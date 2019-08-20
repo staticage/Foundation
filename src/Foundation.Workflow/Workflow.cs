@@ -11,7 +11,7 @@ namespace Foundation.Workflow
         public WorkflowStatus Status { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
-        public string WorkflowDefinitionId { get; set; }
+        public string WorkflowDefinitionName { get; set; }
         public int Version { get; set; }
 
         private Workflow()
@@ -24,19 +24,19 @@ namespace Foundation.Workflow
             {
                 Id = id,
                 StartTime = DateTime.Now,
-                WorkflowDefinitionId = definition.Id,
+                WorkflowDefinitionName = definition.Name,
                 Version = definition.Version
             };
             return workflow;
         }
 
-        public ExecutionPointer StartStep(string stepDefinitionId)
+        public ExecutionPointer StartStep(string stepId)
         {
             var executionPointer = new ExecutionPointer
             {
                 Id = Guid.NewGuid(),
                 StartTime = DateTime.Now,
-                StepId = stepDefinitionId,
+                StepId = stepId,
                 Status = ExecutionPointerStatus.Running,
             };
 
@@ -58,6 +58,17 @@ namespace Foundation.Workflow
 
             EndTime = DateTime.Now;
             Status = WorkflowStatus.Completed;
+        }
+
+        public ExecutionResult Obsolete()
+        {
+            if (Status != WorkflowStatus.Running)
+            {
+                throw new InvalidOperationException("Cannot obsolete a no-running workflow");
+            }
+            EndTime = DateTime.Now;
+            Status = WorkflowStatus.Terminated;
+            return ExecutionResult.Next();
         }
     }
 }

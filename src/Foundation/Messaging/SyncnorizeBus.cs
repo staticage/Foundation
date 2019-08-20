@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Foundation.Messaging
 {
-    public class SynchronousBus : IServiceBus
+    public class  SynchronousBus : IServiceBus
     {
         private readonly IServiceProvider _lifetimeScope;
 

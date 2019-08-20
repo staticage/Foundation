@@ -6,22 +6,17 @@ namespace Foundation.Workflow
 {
     public class WorkflowDefinitionBuilder
     {
-        private List<Action<WorkflowDefinition>> _actions = new List<Action<WorkflowDefinition>>();
+        private readonly List<Action<WorkflowDefinition>> _actions = new List<Action<WorkflowDefinition>>();
 
-        public WorkflowDefinitionBuilder(string id, int version = 1)
+        public WorkflowDefinitionBuilder(string name, int version = 1)
         {
             _actions.Add(def =>
             {
-                def.Id = id;
+                def.Name = name;
                 def.Version = version;
             });
         }
-        public WorkflowDefinitionBuilder Name(string workflowDefinitionName)
-        {
-            _actions.Add(x => x.Description = workflowDefinitionName);
-            return this;
-        }
-
+ 
         public WorkflowDefinition Build()
         {
             var definition = new WorkflowDefinition();
@@ -38,7 +33,7 @@ namespace Foundation.Workflow
         public class StepDefinitionBuilder
         {
             private readonly WorkflowDefinitionBuilder _workflowDefinitionBuilder;
-            private StepDefinition _stepDefinition;
+            private readonly StepDefinition _stepDefinition;
 
 
             public StepDefinitionBuilder(WorkflowDefinitionBuilder workflowDefinitionBuilder, Type bodyType)
@@ -56,20 +51,38 @@ namespace Foundation.Workflow
                 _stepDefinition.Id = stepId;
                 return this;
             }
-
-            public EventActionBuilder ForAction(string actionName, params Guid[] actorIds)
+            
+            public StepDefinitionBuilder Name(string stepName)
             {
-                var action = new EventActionDefinition(actionName,actorIds);
-                _stepDefinition.Actions.Add(action);
-                return new EventActionBuilder(this, action);
+                _stepDefinition.Name = stepName;
+                return this;
             }
             
-            public class EventActionBuilder
+            public StepDefinitionBuilder Input(string paramName, object value)
+            {
+                _stepDefinition.Parameters.Add(paramName, () => value);
+                return this;
+            }
+
+            public StepDefinitionBuilder Input(string paramName, Expression<Func<object>> valueExpression)
+            {
+                _stepDefinition.Parameters.Add(paramName, valueExpression.Compile());
+                return this;
+            }
+            
+            public WorkflowActionBuilder ForAction(string actionName, params Guid[] roleIds)
+            {
+                var action = new WorkflowActionDefinition(actionName,roleIds);
+                _stepDefinition.Actions.Add(action);
+                return new WorkflowActionBuilder(this, action);
+            }
+            
+            public class WorkflowActionBuilder
             {
                 private readonly StepDefinitionBuilder _stepDefinitionBuilder;
-                private readonly EventActionDefinition _eventActionDefinition;
+                private readonly WorkflowActionDefinition _eventActionDefinition;
 
-                public EventActionBuilder(StepDefinitionBuilder stepDefinitionBuilder, EventActionDefinition eventActionDefinition)
+                public WorkflowActionBuilder(StepDefinitionBuilder stepDefinitionBuilder, WorkflowActionDefinition eventActionDefinition)
                 {
                     _stepDefinitionBuilder = stepDefinitionBuilder;
                     _eventActionDefinition = eventActionDefinition;
@@ -77,13 +90,13 @@ namespace Foundation.Workflow
 
                 public StepDefinitionBuilder Returns(ExecutionResult executionResult)
                 {
-                    _eventActionDefinition.Action = new ReturnsEventAction(executionResult);
+                    _eventActionDefinition.Action = new ReturnsExecutionResultAction(executionResult);
                     return _stepDefinitionBuilder;
                 }
 
                 public StepDefinitionBuilder Do(Expression<Func<IStepExecutionContext, ExecutionResult>> expression)
                 {
-                    _eventActionDefinition.Action = new ExpressionEventAction(expression);
+                    _eventActionDefinition.Action = new ExpressionAction(expression);
                     return _stepDefinitionBuilder;
                 }
             }

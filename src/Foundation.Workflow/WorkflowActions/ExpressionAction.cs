@@ -3,11 +3,11 @@ using System.Linq.Expressions;
 
 namespace Foundation.Workflow
 {
-    public class ExpressionEventAction : IEventAction
+    public class ExpressionAction : IWorkflowAction
     {
         private readonly Expression<Func<IStepExecutionContext, ExecutionResult>> _expression;
 
-        public ExpressionEventAction(Expression<Func<IStepExecutionContext, ExecutionResult>> expression)
+        public ExpressionAction(Expression<Func<IStepExecutionContext, ExecutionResult>> expression)
         {
             _expression = expression;
         }

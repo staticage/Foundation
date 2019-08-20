@@ -7,5 +7,6 @@ namespace Foundation.CustomForm.Services
     {
         IEnumerable<CustomFormMetadata> FindCustomFormMetadata(Assembly assembly);
         IEnumerable<CustomForm> FindCustomFormSettings();
+        CustomForm GetCustomFormSetting(string name);
     }
 }

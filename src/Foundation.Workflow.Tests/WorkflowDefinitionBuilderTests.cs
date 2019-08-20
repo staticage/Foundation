@@ -15,7 +15,7 @@ namespace Foundation.Workflow.Tests
         public void Should_supports_definite_a_definition_name()
         {
             var builder = new WorkflowDefinitionBuilder("Test workflow");
-            builder.Name("Test workflow");
+            
             var definition = builder.Build();
             definition.Description.Should().Be("Test workflow");
         }
@@ -24,10 +24,21 @@ namespace Foundation.Workflow.Tests
         public void When_add_a_new_step_it_should_contains_the_step()
         {
             var builder = new WorkflowDefinitionBuilder("Test workflow");
-            builder.AddStep<HelloWorldStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E");
+            builder.AddStep<UserActionStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E");
             var definition = builder.Build();
             definition.Steps.Single().Id.Should().Be("A79047B7-1554-453B-8044-ABEF000F8B6E");
-            definition.Steps.Single().BodyType.Should().Be(typeof(HelloWorldStepBody));
+            definition.Steps.Single().BodyType.Should().Be(typeof(UserActionStepBody));
+        }
+        
+                
+        [Test]
+        public void When_add_a_new_step_it_should_contains_the_step1()
+        {
+            var builder = new WorkflowDefinitionBuilder("Test workflow");
+            builder.AddStep<UserActionStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E");
+            var definition = builder.Build();
+            definition.Steps.Single().Id.Should().Be("A79047B7-1554-453B-8044-ABEF000F8B6E");
+            definition.Steps.Single().BodyType.Should().Be(typeof(UserActionStepBody));
         }
     }
 }

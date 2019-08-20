@@ -60,14 +60,22 @@ export default {
         };
     },
     async mounted() {
-        let customForm = (await this.$axios.get(`custom-form/${this.$route.params.id}`)).data
+        let customForm = (await this.$axios.get(`custom-form/${this.$route.params.customFormId}`)).data
+
         this.rules = ValidationMethods.generateRules(customForm)
         this.fields = customForm.fieldGroups
             .map(x => x.fields)
             .reduce((x, y) => x.concat(y), [])
         await this.loadOptions(customForm)
-        this.generateFieldDefaultValues()
+        if (this.$route.params.id) {
+            const model = (await this.$axios.get(`entity/${customForm.name}/${this.$route.params.id}`)).data
+            Object.keys(model).forEach(key => Vue.set(this.command, this.capitalize(key), model[key]))
+        } else {
+            this.generateFieldDefaultValues()
+        }
+
         this.customForm = customForm
+
         this.loaded = true
     },
     methods: {
@@ -75,10 +83,19 @@ export default {
             const valid = await this.$refs.form.validate();
             if (valid) {
                 this.loading = true;
-                console.log("command", this.command);
-                await this.$axios.post(`entity/${this.customForm.name}`, this.command);
+                if (this.command.Id) {
+                    await this.$axios.put(`entity/${this.customForm.name}`, this.command);
+                }
+                else {
+                    await this.$axios.post(`entity/${this.customForm.name}`, this.command);
+                }
+
                 this.loading = false;
             }
+        },
+        capitalize(s) {
+            if (typeof s !== 'string') return ''
+            return s.charAt(0).toUpperCase() + s.slice(1)
         },
         generateFieldDefaultValues() {
             this.fields.forEach(field => {

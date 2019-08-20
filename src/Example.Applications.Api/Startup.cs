@@ -20,6 +20,7 @@ namespace Example.Applications.Api
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            AutoMapper.Mapper.Initialize(x=> {});
         }
 
         public IConfiguration Configuration { get; }
@@ -37,7 +38,12 @@ namespace Example.Applications.Api
             }));
             services.AddCustomForm(x=> x.UseNpgsql("Server=127.0.0.1;Port=5432;Database=custom_form_tests;User Id=postgres;Password=postgres;"));
             services.AddDbContext<ExampleDbContext>(options =>
-                options.UseNpgsql("Server=127.0.0.1;Port=5432;Database=custom_form_tests;User Id=postgres;Password=postgres;"));
+                {
+                    options.UseNpgsql(
+                        "Server=127.0.0.1;Port=5432;Database=custom_form_tests;User Id=postgres;Password=postgres;",
+                        opt => opt.MigrationsAssembly(typeof(ExampleDbContext).Assembly.FullName));
+                }
+                );
             
             services.AddMvc().AddJsonOptions(options =>
                 {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -12,17 +13,19 @@ namespace Foundation.Workflow.Tests
     {
         private WorkflowDefinition definition;
         private IServiceProvider _provider;
+
         [SetUp]
         public void Setup()
         {
             var builder = new WorkflowDefinitionBuilder("Workflow1");
-            builder.AddStep<HelloWorldStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E").ForAction("同意").Returns(ExecutionResult.Next());
+            builder.AddStep<UserActionStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E").ForAction("同意")
+                .Returns(ExecutionResult.Next());
             definition = builder.Build();
             definition.Steps.Single().Id.Should().Be("A79047B7-1554-453B-8044-ABEF000F8B6E");
-            definition.Steps.Single().BodyType.Should().Be(typeof(HelloWorldStepBody));
+            definition.Steps.Single().BodyType.Should().Be(typeof(UserActionStepBody));
 
             var services = new ServiceCollection();
-            services.AddScoped<HelloWorldStepBody>();
+            services.AddScoped<UserActionStepBody>();
             services.AddScoped<IWorkflowRepository, WorkflowRepository>();
             services.AddDbContext<WorkflowDbContext>(opt =>
             {
@@ -32,22 +35,22 @@ namespace Foundation.Workflow.Tests
             _provider = services.BuildServiceProvider();
         }
 
-        
-        
+
         [Test]
         public async Task Should_execute_steps_one_by_one()
         {
-            IWorkflowEngine engine = new WorkflowEngine(_provider.GetService<IWorkflowRepository>(), new WorkflowExecutor(_provider));
-            await engine.Registrar.RegisterWorkflowDefinition(definition);
+            IWorkflowEngine engine = new WorkflowEngine(_provider.GetService<IWorkflowRepository>(),
+                new WorkflowExecutor(_provider));
+            engine.Registrar.RegisterWorkflowDefinition(definition);
 
-            var workflowId =  await engine.StartWorkflow("Workflow1");
+            var workflowId = await engine.StartWorkflow("Workflow1");
             var workflow = await GetService<IWorkflowRepository>().GetWorkflow(workflowId);
             workflow.Status.Should().Be(WorkflowStatus.Running);
             await engine.PublishActionEvent(workflowId, new WorkflowActionEvent
             {
                 Action = "同意"
             });
-            
+
             workflow = await GetService<IWorkflowRepository>().GetWorkflow(workflowId);
             workflow.Status.Should().Be(WorkflowStatus.Completed);
         }
@@ -61,10 +64,114 @@ namespace Foundation.Workflow.Tests
         public void When_add_a_new_step_it_should_contains_the_step()
         {
             var builder = new WorkflowDefinitionBuilder("Workflow1");
-            builder.AddStep<HelloWorldStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E");
+            builder.AddStep<UserActionStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E");
             var definition = builder.Build();
             definition.Steps.Single().Id.Should().Be("A79047B7-1554-453B-8044-ABEF000F8B6E");
-            definition.Steps.Single().BodyType.Should().Be(typeof(HelloWorldStepBody));
+            definition.Steps.Single().BodyType.Should().Be(typeof(UserActionStepBody));
+        }
+
+        [Test]
+        public void WorkflowSpecTests()
+        {
+            IWorkflowEngine engine = new WorkflowEngine(_provider.GetService<IWorkflowRepository>(),
+                new WorkflowExecutor(_provider));
+            
+            
+            var services = new ServiceCollection();
+            services.AddScoped<UserActionStepBody>();
+            services.AddScoped<IWorkflowRepository, WorkflowRepository>();
+            services.AddDbContext<WorkflowDbContext>(opt =>
+            {
+                opt.UseSqlServer("Server=62.234.214.209,1445;Database=rebus_lyh;User Id=sa;Password=sasa@123;",
+                    options => options.MigrationsAssembly(typeof(WorkflowDbContext).Assembly.FullName));
+            });
+
+            using (var scope = _provider.CreateScope())
+            {
+                var spec = new WorkflowSpec
+                {
+                    Id = Guid.NewGuid(),
+                    Version = 1,
+                    StepSpecs = new List<WorkflowStepSpec>
+                    {
+                        new WorkflowStepSpec
+                        {
+                            ActionSpecs = new List<StepActionSpec>
+                            {
+                                new StepActionSpec
+                                {
+                                    Action = WorkflowAction.Submit
+                                }
+                            }
+                        }
+                    }
+                };
+                
+                var repository = scope.ServiceProvider.GetService<IWorkflowRepository>();
+                var definition = engine.Registrar.GetWorkflowDefinition(spec.Id.ToString(), spec.Version);
+                if (definition == null)
+                {
+                    var builder = new WorkflowDefinitionBuilder(spec.Id.ToString(), spec.Version);
+                    string startId = null;
+                    string previousStepId = null;
+
+                    for (var i = 0; i < spec.StepSpecs.Count; i++)
+                    {
+                        var stepSpec = spec.StepSpecs[i];
+                        var stepId = Guid.NewGuid().ToString("N");
+                        if (startId == null)
+                        {
+                            startId = stepId;
+                        }
+                        
+                        var stepBuilder = builder.AddStep<UserActionStepBody>(stepId);
+                        stepBuilder.Input("AssignedPrincipal", () => stepSpec.RoleId);
+                        stepBuilder.Input("StepName", () => stepSpec.Name);
+                        
+                        var roleIds = new List<Guid>();
+                        if (stepSpec.RoleId.HasValue)
+                        {
+                            roleIds.Add(stepSpec.RoleId.Value);
+                        }
+                        
+                        foreach (var actionSpec in stepSpec.ActionSpecs)
+                        {
+                            var actionBuilder = stepBuilder.ForAction(actionSpec.Action.ToString(),roleIds.ToArray());
+                            if (actionSpec.OutcomeType == OutcomeType.Startup)
+                            {
+                                actionBuilder.Returns(ExecutionResult.Next(startId));
+                            }
+                            else if (actionSpec.OutcomeType == OutcomeType.PreviousStep)
+                            {
+                                if (previousStepId == null)
+                                {
+                                    throw new InvalidOperationException("Cannot go to previous step.");
+                                }
+                                actionBuilder.Returns(ExecutionResult.Next(previousStepId));
+                            }
+                            else if (actionSpec.OutcomeType == OutcomeType.Next)
+                            {
+                                actionBuilder.Returns(ExecutionResult.Next());
+                            }
+                            else if (actionSpec.OutcomeType == OutcomeType.Obsolete)
+                            {
+                                actionBuilder.Do(context => context.Workflow.Obsolete());
+                            }
+                            else if (actionSpec.OutcomeType == OutcomeType.StepId)
+                            {
+                                throw new NotImplementedException();
+                                //actionStep.Outcomes.Add(new StepOutcome{ExternalNextStepId = actionSpec.NextStepId});
+                            }
+                        }
+
+                        stepBuilder.Name(stepSpec.Type.ToString());
+                        previousStepId = stepId;
+                    }
+
+                    definition = builder.Build();
+                    engine.Registrar.RegisterWorkflowDefinition(definition);
+                }
+            }
         }
     }
 }
