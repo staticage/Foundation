@@ -26,7 +26,7 @@ namespace Foundation.Workflow
             var key = new Tuple<string,int>(definition.Name, definition.Version);
             if (_definitions.ContainsKey(key))
             {
-                throw new InvalidOperationException($"Duplicate workflow with name: {definition.Name} version: {definition.Version}");
+                throw new InvalidOperationException($"Duplicate workflow with name: {definition.Name} and version: {definition.Version}");
             }
             _definitions.Add(key, definition);
         }
