@@ -5,11 +5,9 @@ using System.Threading.Tasks;
 
 namespace Foundation.Workflow.Tests
 {
-    
-    
-    public class UserActionStepBody : IStepBody
+    public class UserActionStepBody : StepBody
     {
-        public async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
+        public override async Task<ExecutionResult> RunAsync(IStepExecutionContext context)
         {
             if (!context.ExecutionPointer.PublishedEvents.Any())
             {

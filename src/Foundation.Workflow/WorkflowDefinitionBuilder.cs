@@ -60,13 +60,13 @@ namespace Foundation.Workflow
             
             public StepDefinitionBuilder Input(string paramName, object value)
             {
-                _stepDefinition.Parameters.Add(paramName, () => value);
+                _stepDefinition.Variables.Add(paramName, () => value);
                 return this;
             }
 
             public StepDefinitionBuilder Input(string paramName, Expression<Func<object>> valueExpression)
             {
-                _stepDefinition.Parameters.Add(paramName, valueExpression.Compile());
+                _stepDefinition.Variables.Add(paramName, valueExpression.Compile());
                 return this;
             }
             

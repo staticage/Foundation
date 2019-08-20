@@ -114,7 +114,12 @@ namespace Foundation.Workflow
         private IStepBody BuildStep(IServiceScope scope, WorkflowDefinition definition, ExecutionPointer executionPointer)
         {
             var stepDefinition = definition.Steps.Single(x => x.Id == executionPointer.StepId);
-            return (IStepBody) scope.ServiceProvider.GetService(stepDefinition.BodyType);
+            var step = (IStepBody) scope.ServiceProvider.GetService(stepDefinition.BodyType);
+            foreach (var variable in stepDefinition.Variables)
+            {
+                step.SetVariable(variable.Key, variable.Value());
+            }
+            return step;
         }
     }
 }

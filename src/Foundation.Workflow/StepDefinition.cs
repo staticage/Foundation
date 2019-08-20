@@ -9,6 +9,6 @@ namespace Foundation.Workflow
         public string Name { get; set; }
         public Type BodyType { get; set; }
         public List<WorkflowActionDefinition> Actions { get; set; } = new List<WorkflowActionDefinition>();
-        public Dictionary<string, Func<object>> Parameters { get; set; } = new Dictionary<string, Func<object>>();
+        public Dictionary<string, Func<object>> Variables { get; set; } = new Dictionary<string, Func<object>>();
     }
 }
