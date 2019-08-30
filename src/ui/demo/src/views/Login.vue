@@ -1,9 +1,7 @@
 <template>
     <div class="single-page">
         <el-card class="login-box">
-            <div class="logo">
-                <img src="../assets/images/logo.png" alt="ALLHR专业人力资源管理云服务平台">
-            </div>
+            <div class="logo"></div>
             <div class="title">登录您的账号</div>
             <el-form ref="form" :rules="rules" :model="command">
                 <el-row>

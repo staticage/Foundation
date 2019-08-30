@@ -60,7 +60,6 @@
         </el-row>
         <el-row>
             <el-col :span="4" style="position: relative">
-                <img style="height:32px; margin-top:13px;" src="../assets/images/logo.png" />
                 <div style="position: absolute;top: 18px;height: 40px;border-right: 2px solid #f3f3f3;width: 98%;left: 0;"></div>
             </el-col>
             <el-col :span="20">

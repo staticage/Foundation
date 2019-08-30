@@ -22,8 +22,9 @@ namespace Foundation.Workflow
     public enum WorkflowStatus
     {
         Running = 0,
-        Completed = 1,
-        Terminated = 2
+        Complete = 1,
+        Terminated = 2,
+        Runnable
     }
 
     public interface IWorkflowDefinitionRegistry
@@ -36,5 +37,11 @@ namespace Foundation.Workflow
         public Guid ActorId { get; set; }
         public string Action { get; set; }
         public JObject ActionData { get; set; }
+        public Guid WorkflowId { get; set; }
+        public string Reason { get; set; }
+        public string Title { get; set; }
+        public Guid UserId { get; set; }
+        public DateTime EventTime { get; set; }
+        public string CurrentStepId { get; set; }
     }
 }

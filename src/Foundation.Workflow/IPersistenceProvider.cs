@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace Foundation.Workflow
 {
-    public interface IWorkflowRepository
+    public interface IWorkflowPersistence
     {
-        Task AddWorkflow(Workflow workflow);
-        Task<Workflow> GetWorkflow(Guid workflowId);
+        Task AddWorkflow(WorkflowInstance workflow);
+        Task<WorkflowInstance> GetWorkflowInstance(Guid workflowId);
     }
 
     public interface IWorkflowDefinitionRegistrar
@@ -36,5 +36,18 @@ namespace Foundation.Workflow
             var key = new Tuple<string,int>(workflowName, version);
             return _definitions[key];
         }
+    }
+    
+    public abstract class LifeCycleEvent
+    {
+        public DateTime EventTimeUtc { get; set; }
+
+        public string WorkflowInstanceId { get; set; }
+
+        public string WorkflowDefinitionId { get; set; }
+
+        public int Version { get; set; }
+
+        public string Reference { get; set; }
     }
 }

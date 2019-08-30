@@ -18,7 +18,7 @@ namespace Foundation.Workflow
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                var workflow = await scope.ServiceProvider.GetService<IWorkflowRepository>().GetWorkflow(workflowId);
+                var workflow = await scope.ServiceProvider.GetService<IWorkflowPersistence>().GetWorkflowInstance(workflowId);
                 if (workflow.Status == WorkflowStatus.Running)
                 {
                     var next = workflow.GetNextExecutionPointer();
@@ -47,7 +47,7 @@ namespace Foundation.Workflow
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                var workflow = await scope.ServiceProvider.GetService<IWorkflowRepository>().GetWorkflow(workflowId);
+                var workflow = await scope.ServiceProvider.GetService<IWorkflowPersistence>().GetWorkflowInstance(workflowId);
                 if (workflow.Status == WorkflowStatus.Running)
                 {
                     var next = workflow.GetNextExecutionPointer();
@@ -105,7 +105,7 @@ namespace Foundation.Workflow
             }
             else
             {
-                context.ExecutionPointer.Status = ExecutionPointerStatus.Running;
+                context.ExecutionPointer.Status = PointerStatus.Running;
                 context.ExecutionPointer.EventName = result.EventName;
                 context.ExecutionPointer.EventKey = result.EventKey;
             }

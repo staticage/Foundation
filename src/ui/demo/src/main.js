@@ -8,6 +8,10 @@ import moment from "moment";
 import axios from "./utils/http";
 
 import echarts from "echarts";
+import FormMaking from 'form-making'
+import 'form-making/dist/FormMaking.css'
+
+Vue.use(FormMaking)
 
 Vue.prototype.$echarts = echarts;
 
@@ -19,7 +23,7 @@ Vue.use(ElementUI, {
     zIndex: 3000
 });
 Vue.prototype.$axios = axios;
-Vue.prototype.$hasPermission = function(name) {
+Vue.prototype.$hasPermission = function (name) {
     const user = this.$store.state.user;
     if (user.superAdmin || user.companyAdmin) {
         return true;

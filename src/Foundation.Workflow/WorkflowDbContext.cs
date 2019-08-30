@@ -4,7 +4,7 @@ namespace Foundation.Workflow
 {
     public class WorkflowDbContext : DbContext
     {
-        public DbSet<Workflow> Workflows { get; set; }
+        public DbSet<WorkflowInstance> Workflows { get; set; }
         public DbSet<ExecutionPointer> ExecutionPointers { get; set; }
 
         public WorkflowDbContext(DbContextOptions<WorkflowDbContext> options) : base(options)

@@ -18,15 +18,17 @@ namespace Foundation.Workflow.Tests
         public void Setup()
         {
             var builder = new WorkflowDefinitionBuilder("Workflow1");
-            builder.AddStep<UserActionStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E").ForAction("同意")
+            builder.AddStep<UserActionStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E")
+                .Input("Input1",() => _provider.GetService<IWorkflowPersistence>() )
+                .ForAction("同意")
                 .Returns(ExecutionResult.Next());
             definition = builder.Build();
             definition.Steps.Single().Id.Should().Be("A79047B7-1554-453B-8044-ABEF000F8B6E");
             definition.Steps.Single().BodyType.Should().Be(typeof(UserActionStepBody));
 
             var services = new ServiceCollection();
+            services.AddWorkflow();
             services.AddScoped<UserActionStepBody>();
-            services.AddScoped<IWorkflowRepository, WorkflowRepository>();
             services.AddDbContext<WorkflowDbContext>(opt =>
             {
                 opt.UseSqlServer("Server=62.234.214.209,1445;Database=rebus_lyh;User Id=sa;Password=sasa@123;",
@@ -39,20 +41,20 @@ namespace Foundation.Workflow.Tests
         [Test]
         public async Task Should_execute_steps_one_by_one()
         {
-            IWorkflowEngine engine = new WorkflowEngine(_provider.GetService<IWorkflowRepository>(),
+            IWorkflowHost engine = new WorkflowEngine(_provider.GetService<IWorkflowPersistence>(),
                 new WorkflowExecutor(_provider));
             engine.Registrar.RegisterWorkflowDefinition(definition);
 
-            var workflowId = await engine.StartWorkflow("Workflow1");
-            var workflow = await GetService<IWorkflowRepository>().GetWorkflow(workflowId);
+            var workflowId = await engine.StartWorkflow("Workflow1", new WorkflowData());
+            var workflow = await GetService<IWorkflowPersistence>().GetWorkflowInstance(workflowId);
             workflow.Status.Should().Be(WorkflowStatus.Running);
             await engine.PublishActionEvent(workflowId, new WorkflowActionEvent
             {
                 Action = "同意"
             });
 
-            workflow = await GetService<IWorkflowRepository>().GetWorkflow(workflowId);
-            workflow.Status.Should().Be(WorkflowStatus.Completed);
+            workflow = await GetService<IWorkflowPersistence>().GetWorkflowInstance(workflowId);
+            workflow.Status.Should().Be(WorkflowStatus.Complete);
         }
 
         private T GetService<T>()
@@ -73,13 +75,13 @@ namespace Foundation.Workflow.Tests
         [Test]
         public void WorkflowSpecTests()
         {
-            IWorkflowEngine engine = new WorkflowEngine(_provider.GetService<IWorkflowRepository>(),
+            IWorkflowHost engine = new WorkflowEngine(_provider.GetService<IWorkflowPersistence>(),
                 new WorkflowExecutor(_provider));
             
             
             var services = new ServiceCollection();
             services.AddScoped<UserActionStepBody>();
-            services.AddScoped<IWorkflowRepository, WorkflowRepository>();
+            services.AddWorkflow();
             services.AddDbContext<WorkflowDbContext>(opt =>
             {
                 opt.UseSqlServer("Server=62.234.214.209,1445;Database=rebus_lyh;User Id=sa;Password=sasa@123;",
@@ -96,6 +98,7 @@ namespace Foundation.Workflow.Tests
                     {
                         new WorkflowStepSpec
                         {
+                            RoleId = Guid.Parse("DEDC7F6D-6E59-4D8F-B014-0A598D179EEA"),
                             ActionSpecs = new List<StepActionSpec>
                             {
                                 new StepActionSpec
@@ -107,7 +110,7 @@ namespace Foundation.Workflow.Tests
                     }
                 };
                 
-                var repository = scope.ServiceProvider.GetService<IWorkflowRepository>();
+                var repository = scope.ServiceProvider.GetService<IWorkflowPersistence>();
                 var definition = engine.Registrar.GetWorkflowDefinition(spec.Id.ToString(), spec.Version);
                 if (definition == null)
                 {
@@ -173,5 +176,10 @@ namespace Foundation.Workflow.Tests
                 }
             }
         }
+    }
+
+    public class WorkflowData
+    {
+        
     }
 }

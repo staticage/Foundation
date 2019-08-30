@@ -38,16 +38,16 @@ namespace Foundation.Workflow.Migrations
 
                     b.Property<string>("StepId");
 
-                    b.Property<Guid?>("WorkflowId");
+                    b.Property<Guid?>("WorkflowInstanceId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WorkflowId");
+                    b.HasIndex("WorkflowInstanceId");
 
                     b.ToTable("ExecutionPointers");
                 });
 
-            modelBuilder.Entity("Foundation.Workflow.Workflow", b =>
+            modelBuilder.Entity("Foundation.Workflow.WorkflowInstance", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
@@ -69,9 +69,9 @@ namespace Foundation.Workflow.Migrations
 
             modelBuilder.Entity("Foundation.Workflow.ExecutionPointer", b =>
                 {
-                    b.HasOne("Foundation.Workflow.Workflow")
+                    b.HasOne("Foundation.Workflow.WorkflowInstance")
                         .WithMany("ExecutionPointers")
-                        .HasForeignKey("WorkflowId");
+                        .HasForeignKey("WorkflowInstanceId");
                 });
 #pragma warning restore 612, 618
         }

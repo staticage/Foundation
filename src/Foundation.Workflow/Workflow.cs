@@ -1,10 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Foundation.Workflow
 {
-    public class Workflow
+    public class WorkflowInstance : IWorkflowVariable
     {
         public Guid Id { get; set; }
         public List<ExecutionPointer> ExecutionPointers { get; set; } = new List<ExecutionPointer>();
@@ -14,13 +15,13 @@ namespace Foundation.Workflow
         public string WorkflowDefinitionName { get; set; }
         public int Version { get; set; }
 
-        private Workflow()
+        private WorkflowInstance()
         {
         }
 
-        public static Workflow Start(Guid id, WorkflowDefinition definition)
+        public static WorkflowInstance Start(Guid id, WorkflowDefinition definition)
         {
-            var workflow = new Workflow
+            var workflow = new WorkflowInstance
             {
                 Id = id,
                 StartTime = DateTime.Now,
@@ -37,7 +38,7 @@ namespace Foundation.Workflow
                 Id = Guid.NewGuid(),
                 StartTime = DateTime.Now,
                 StepId = stepId,
-                Status = ExecutionPointerStatus.Running,
+                Status = PointerStatus.Running,
             };
 
             ExecutionPointers.Add(executionPointer);
@@ -57,7 +58,7 @@ namespace Foundation.Workflow
             }
 
             EndTime = DateTime.Now;
-            Status = WorkflowStatus.Completed;
+            Status = WorkflowStatus.Complete;
         }
 
         public ExecutionResult Obsolete()
@@ -70,5 +71,92 @@ namespace Foundation.Workflow
             Status = WorkflowStatus.Terminated;
             return ExecutionResult.Next();
         }
+
+        public bool TryGetVariable(string name, out object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetVariable(string name, object value)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class WorkflowVariables<TKey, TValue> : IDictionary<TKey, TValue>
+    {
+        private IDictionary<TKey, TValue> _innerDictionary;
+        private bool _isChanged = false;
+        public WorkflowVariables() : this(new Dictionary<TKey, TValue>())
+        {
+        }
+
+        public WorkflowVariables(IDictionary<TKey, TValue> values)
+        {
+            _innerDictionary = new Dictionary<TKey, TValue>(values);
+        }
+
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _innerDictionary.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => _innerDictionary.GetEnumerator();
+
+        private WorkflowVariables<TKey, TValue> Do(Action<WorkflowVariables<TKey, TValue>> action)
+        {
+            var variables = this;
+            if (!_isChanged)
+            {
+                variables = new WorkflowVariables<TKey, TValue>(_innerDictionary);
+                variables._isChanged = true;
+            }
+            action(variables);
+            return variables;
+        }
+        
+
+
+        public void Add(KeyValuePair<TKey, TValue> item) => Do(x => x._innerDictionary.Add(item));
+
+        public void Clear() => Do(x => x._innerDictionary.Clear());
+
+        public bool Contains(KeyValuePair<TKey, TValue> item) => _innerDictionary.Contains(item);
+
+        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) =>
+            _innerDictionary.CopyTo(array, arrayIndex);
+
+        public bool Remove(KeyValuePair<TKey, TValue> item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Count { get; }
+        public bool IsReadOnly { get; }
+        public void Add(TKey key, TValue value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ContainsKey(TKey key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Remove(TKey key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetValue(TKey key, out TValue value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TValue this[TKey key]
+        {
+            get => throw new NotImplementedException();
+            set => throw new NotImplementedException();
+        }
+
+        public ICollection<TKey> Keys { get; }
+        public ICollection<TValue> Values { get; }
     }
 }

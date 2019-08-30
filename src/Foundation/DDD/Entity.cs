@@ -7,8 +7,6 @@ namespace Foundation.DDD
 {
     public interface IEntity
     {
-        DateTime LastModifiedOn { get; set; }
-        DateTime CreatedOn { get; set; }
     }
 
     [Serializable]

@@ -1,6 +1,9 @@
 <template>
     <section>
-        {{customForm}}
+        <fm-making-form ref="makingform" style="height: 500px;" preview generate-code generate-json>
+            <template slot="action"></template>
+        </fm-making-form>
+        <!-- {{customForm}}
         <el-row class="button-top-row">
             <el-col :span="12">
                 <el-select v-model="metadataName" placeholder="请选择" @change="onMetadataNameChanged">
@@ -91,7 +94,7 @@
                 <el-button @click="cancel">取 消</el-button>
                 <el-button type="primary" @click="save">确 定</el-button>
             </div>
-        </el-dialog>
+        </el-dialog>-->
     </section>
 </template>
 <script >

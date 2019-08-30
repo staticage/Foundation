@@ -41,7 +41,7 @@ namespace Example.Applications.Api
                 {
                     options.UseNpgsql(
                         "Server=127.0.0.1;Port=5432;Database=custom_form_tests;User Id=postgres;Password=postgres;",
-                        opt => opt.MigrationsAssembly(typeof(ExampleDbContext).Assembly.FullName));
+                        opt => opt.MigrationsAssembly(typeof(Startup).Assembly.FullName));
                 }
                 );
             
