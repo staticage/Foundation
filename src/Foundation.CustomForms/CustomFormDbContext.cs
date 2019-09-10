@@ -14,7 +14,7 @@ namespace Foundation.CustomForm
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CustomForm>().Property(x => x.FieldGroups).IsJson();
+            modelBuilder.Entity<CustomForm>().Property(x => x.Fields).IsJson();
             modelBuilder.Entity<Setting>().Property(x => x.Items).IsJson();
             base.OnModelCreating(modelBuilder);
         }

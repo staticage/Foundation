@@ -31,14 +31,9 @@ namespace Foundation.Core
         {
             return @this == null || @this.OfType<object>().None();
         }
-        
-        public static bool IsNullOrEmpty<T>(this IEnumerable<T> @this)
-        {
-            return @this == null || @this.None();
-        }
 
-        public static bool None<TSource>(this IEnumerable<TSource> @this) => !@this.Any();
-        public static bool None<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate) => !@this.Any(predicate);
+        public static bool None(this IEnumerable @this) =>  !@this.OfType<object>().Any();
+        
         public static string JoinString<TSource>(this IEnumerable<TSource> @this, string separator) => string.Join(separator, @this);
 
         public static Tuple<IEnumerable<TSource>,IEnumerable<TSource>> Partition<TSource>(this IEnumerable<TSource> @this, Func<TSource, bool> predicate)

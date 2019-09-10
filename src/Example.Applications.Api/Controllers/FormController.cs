@@ -55,7 +55,7 @@ namespace Example.Applications.Api.Controllers
         public async Task<IActionResult> Put([FromBody] CustomForm model)
         {
             var customForm = await _dbContext.CustomForms.SingleAsync(x=> x.Id == model.Id);
-            customForm.FieldGroups = model.FieldGroups;
+            customForm.Fields = model.Fields;
             
             await _dbContext.SaveChangesAsync();
             return Ok(customForm);

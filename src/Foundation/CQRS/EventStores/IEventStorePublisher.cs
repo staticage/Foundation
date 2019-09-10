@@ -1,10 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Foundation.DDD;
 using Foundation.Messaging;
-using Rebus.Bus;
 
 
 namespace Foundation.CQRS.EventStores

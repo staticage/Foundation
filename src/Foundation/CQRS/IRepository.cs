@@ -11,6 +11,5 @@ namespace Foundation.CQRS
         Task<TAggregateRoot> GetAsync<TAggregateRoot>(Guid id, int version) where TAggregateRoot : class, IAggregateRoot;
         Task AddAsync(IAggregateRoot aggregateRoot);
         Task SaveChangesAsync();
-        Task<IDbContextTransaction> GetTransactionAsync();
     }
 }

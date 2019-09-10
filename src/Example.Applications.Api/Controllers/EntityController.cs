@@ -50,7 +50,7 @@ namespace Example.Applications.Api.Controllers
             
             foreach (var key in parameters.Keys.ToList())
             {
-                var field = customForm.FieldGroups.SelectMany(x => x.Fields).Single(x => x.Name == key);
+                var field = customForm.Fields.Single(x => x.Name == key);
                 var property = entityType.GetProperty(key);
                 if (parameters[key]?.ToString().IsNullOrEmpty() ?? true)
                 {

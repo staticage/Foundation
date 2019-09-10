@@ -14,11 +14,7 @@ namespace Foundation.CustomForm
         
     }
 
-    public class CustomFieldGroup
-    {
-        public string Label { get; set; }
-        public List<CustomField> Fields { get; set; } = new List<CustomField>();
-    }
+
 
     public class FieldInput
     {

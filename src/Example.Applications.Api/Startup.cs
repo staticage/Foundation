@@ -20,7 +20,6 @@ namespace Example.Applications.Api
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            AutoMapper.Mapper.Initialize(x=> {});
         }
 
         public IConfiguration Configuration { get; }

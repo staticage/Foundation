@@ -9,36 +9,29 @@ namespace Foundation.CustomForm
         public int Id { get; set; }
         public string Name { get; set; }
         public string Label { get; set; }
-        public List<CustomFieldGroup> FieldGroups { get; set; } = new List<CustomFieldGroup>();
+        public List<CustomField> Fields { get; set; } = new List<CustomField>();
 
         public static CustomForm Create(CustomFormMetadata metadata)
         {
             return new CustomForm
             {
                 Name = metadata.TypeMetadata.Type,
-                FieldGroups = new List<CustomFieldGroup>
+
+                Fields = metadata.Fields.Select(x => new CustomField
                 {
-                    new CustomFieldGroup
+                    Name = x.Name,
+                    Input = new FieldInput
                     {
-                        Label = "基本信息",
-                        Fields = metadata.Fields.Select(x=> new CustomField
-                        { 
-                            Name = x.Name,
-                            Input = new FieldInput
-                            {
-                                Type = "text",
-                            },
-                            Label = x.Label
-                        }).ToList()
-                    }
-                }
+                        Type = "text",
+                    },
+                    Label = x.Label
+                }).ToList()
             };
         }
     }
 
     public class Setting
     {
-        
         public int Id { get; set; }
         public string Name { get; set; }
         public List<Item> Items { get; set; }

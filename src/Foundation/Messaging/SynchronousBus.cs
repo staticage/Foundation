@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Foundation.CQRS;
-using Foundation.Messaging.ServiceBuses.RebusBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -45,7 +44,7 @@ namespace Foundation.Messaging
 //                        {
 //                            try
 //                            {
-                                await repository.SaveChangesAsync();   
+                        await repository.SaveChangesAsync();   
 //                                transaction.Commit();
 //                            }
 //                            catch
@@ -92,45 +91,6 @@ namespace Foundation.Messaging
         public Task Defer(ICommand command, TimeSpan delay)
         {
             throw new NotImplementedException($"{nameof(SynchronousBus)} 不支持Defer操作");
-        }
-    }
-
-    class ServiceBus : IServiceBus
-    {
-        private readonly IServiceBus _internalServiceBus;
-        private readonly IServiceBus _externalServiceBus;
-
-        public ServiceBus(
-            SynchronousBus internalServiceBus,
-            RebusServiceBus externalServiceBus)
-        {
-            _internalServiceBus = internalServiceBus;
-            _externalServiceBus = externalServiceBus;
-        }
-
-        private IServiceBus GetServiceBus(object message)
-        {
-            return message is IExternalMessage ? _externalServiceBus : _internalServiceBus;
-        }
-
-        public Task Send(ICommand command)
-        {
-            return GetServiceBus(command).Send(command);
-        }
-
-        public Task Publish(IEvent @event)
-        {
-            return GetServiceBus(@event).Publish(@event);
-        }
-
-        public Task<TQueryResult> Get<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : class
-        {
-            return GetServiceBus(query).Get(query);
-        }
-
-        public Task Defer(ICommand command, TimeSpan delay)
-        {
-            return GetServiceBus(command).Defer(command, delay);
         }
     }
 }
