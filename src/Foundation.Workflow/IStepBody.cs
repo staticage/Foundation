@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using WorkflowCore.Interface;
 
 namespace Foundation.Workflow
 {
@@ -30,7 +31,7 @@ namespace Foundation.Workflow
     public abstract class StepBody : IStepBody, IWorkflowVariable
     {
         public abstract Task<ExecutionResult> RunAsync(IStepExecutionContext context);
-        private IDictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
+        protected IDictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
 
         public bool TryGetVariable(string name, out object value)
         {

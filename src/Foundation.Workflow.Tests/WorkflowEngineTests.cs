@@ -6,6 +6,8 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using WorkflowCore;
+using WorkflowCore.Interface;
 
 namespace Foundation.Workflow.Tests
 {
@@ -19,7 +21,7 @@ namespace Foundation.Workflow.Tests
         {
             var builder = new WorkflowDefinitionBuilder("Workflow1");
             builder.AddStep<UserActionStepBody>("A79047B7-1554-453B-8044-ABEF000F8B6E")
-                .Input("Input1",() => _provider.GetService<IWorkflowPersistence>() )
+                .Input("Input1",() => _provider.GetService<IPersistenceProvider>() )
                 .ForAction("同意")
                 .Returns(ExecutionResult.Next());
             definition = builder.Build();
@@ -29,10 +31,10 @@ namespace Foundation.Workflow.Tests
             var services = new ServiceCollection();
             services.AddWorkflow();
             services.AddScoped<UserActionStepBody>();
-            services.AddDbContext<WorkflowDbContext>(opt =>
+            services.AddDbContext<WorkflowEngineDbContext>(opt =>
             {
                 opt.UseSqlServer("Server=62.234.214.209,1445;Database=rebus_lyh;User Id=sa;Password=sasa@123;",
-                    options => options.MigrationsAssembly(typeof(WorkflowDbContext).Assembly.FullName));
+                    options => options.MigrationsAssembly(typeof(WorkflowEngineDbContext).Assembly.FullName));
             });
             _provider = services.BuildServiceProvider();
         }
@@ -41,19 +43,19 @@ namespace Foundation.Workflow.Tests
         [Test]
         public async Task Should_execute_steps_one_by_one()
         {
-            IWorkflowHost engine = new WorkflowEngine(_provider.GetService<IWorkflowPersistence>(),
+            IWorkflowHost engine = new WorkflowEngine(_provider.GetService<IPersistenceProvider>(),
                 new WorkflowExecutor(_provider));
             engine.Registrar.RegisterWorkflowDefinition(definition);
 
             var workflowId = await engine.StartWorkflow("Workflow1", new WorkflowData());
-            var workflow = await GetService<IWorkflowPersistence>().GetWorkflowInstance(workflowId);
-            workflow.Status.Should().Be(WorkflowStatus.Running);
+            var workflow = await GetService<IPersistenceProvider>().GetWorkflowInstance(workflowId);
+            workflow.Status.Should().Be(WorkflowStatus.Runnable);
             await engine.PublishActionEvent(workflowId, new WorkflowActionEvent
             {
                 Action = "同意"
             });
 
-            workflow = await GetService<IWorkflowPersistence>().GetWorkflowInstance(workflowId);
+            workflow = await GetService<IPersistenceProvider>().GetWorkflowInstance(workflowId);
             workflow.Status.Should().Be(WorkflowStatus.Complete);
         }
 
@@ -75,17 +77,17 @@ namespace Foundation.Workflow.Tests
         [Test]
         public void WorkflowSpecTests()
         {
-            IWorkflowHost engine = new WorkflowEngine(_provider.GetService<IWorkflowPersistence>(),
+            IWorkflowHost engine = new WorkflowEngine(_provider.GetService<IPersistenceProvider>(),
                 new WorkflowExecutor(_provider));
             
             
             var services = new ServiceCollection();
             services.AddScoped<UserActionStepBody>();
             services.AddWorkflow();
-            services.AddDbContext<WorkflowDbContext>(opt =>
+            services.AddDbContext<WorkflowEngineDbContext>(opt =>
             {
                 opt.UseSqlServer("Server=62.234.214.209,1445;Database=rebus_lyh;User Id=sa;Password=sasa@123;",
-                    options => options.MigrationsAssembly(typeof(WorkflowDbContext).Assembly.FullName));
+                    options => options.MigrationsAssembly(typeof(WorkflowEngineDbContext).Assembly.FullName));
             });
 
             using (var scope = _provider.CreateScope())
@@ -110,7 +112,7 @@ namespace Foundation.Workflow.Tests
                     }
                 };
                 
-                var repository = scope.ServiceProvider.GetService<IWorkflowPersistence>();
+                var repository = scope.ServiceProvider.GetService<IPersistenceProvider>();
                 var definition = engine.Registrar.GetWorkflowDefinition(spec.Id.ToString(), spec.Version);
                 if (definition == null)
                 {

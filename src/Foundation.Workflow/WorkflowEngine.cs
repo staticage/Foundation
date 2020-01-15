@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using WorkflowCore.Interface;
 
 namespace Foundation.Workflow
 {
@@ -8,7 +9,7 @@ namespace Foundation.Workflow
 
     public class WorkflowEngine : IWorkflowHost
     {
-        private readonly IWorkflowPersistence _repository;
+        private readonly IPersistenceProvider _repository;
         private readonly IWorkflowExecutor _executor;
         private readonly IWorkflowDefinitionRegistrar _registrar;
         public Task PublishActionEvent(string eventName, string eventKey, WorkflowActionEvent evt)
@@ -18,8 +19,12 @@ namespace Foundation.Workflow
         }
 
         public IWorkflowDefinitionRegistrar Registrar => _registrar;
+        public Task TerminateWorkflow(Guid workflowInstanceId)
+        {
+            throw new NotImplementedException();
+        }
 
-        public WorkflowEngine(IWorkflowPersistence repository, IWorkflowExecutor executor)
+        public WorkflowEngine(IPersistenceProvider repository, IWorkflowExecutor executor)
         {
             _repository = repository;
             _executor = executor;
@@ -41,7 +46,7 @@ namespace Foundation.Workflow
         public async Task PublishActionEvent(Guid workflowId, WorkflowActionEvent evt)
         {
             var workflow = await _repository.GetWorkflowInstance(workflowId);
-            var definition =  _registrar.GetWorkflowDefinition(workflow.WorkflowDefinitionName, workflow.Version);
+            var definition =  _registrar.GetWorkflowDefinition(workflow.WorkflowDefinitionId, workflow.Version);
             
             await _executor.ExecuteWorkflowAction(definition, workflowId, evt);
         }

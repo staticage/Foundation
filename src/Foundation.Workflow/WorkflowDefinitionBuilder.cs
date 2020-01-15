@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using WorkflowCore.Interface;
 
 namespace Foundation.Workflow
 {
@@ -35,6 +36,7 @@ namespace Foundation.Workflow
             private readonly WorkflowDefinitionBuilder _workflowDefinitionBuilder;
             private readonly StepDefinition _stepDefinition;
 
+            public StepDefinition StepDefinition => _stepDefinition;
 
             public StepDefinitionBuilder(WorkflowDefinitionBuilder workflowDefinitionBuilder, Type bodyType)
             {

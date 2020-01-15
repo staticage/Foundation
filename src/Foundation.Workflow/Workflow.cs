@@ -12,10 +12,12 @@ namespace Foundation.Workflow
         public WorkflowStatus Status { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
-        public string WorkflowDefinitionName { get; set; }
+        
         public int Version { get; set; }
+        public string WorkflowDefinitionId { get; set; }
+        public string Reference { get; set; }
 
-        private WorkflowInstance()
+        public WorkflowInstance()
         {
         }
 
@@ -25,7 +27,7 @@ namespace Foundation.Workflow
             {
                 Id = id,
                 StartTime = DateTime.Now,
-                WorkflowDefinitionName = definition.Name,
+                WorkflowDefinitionId = definition.Name,
                 Version = definition.Version
             };
             return workflow;
@@ -52,7 +54,7 @@ namespace Foundation.Workflow
 
         public void Complete()
         {
-            if (Status != WorkflowStatus.Running)
+            if (Status != WorkflowStatus.Runnable)
             {
                 throw new InvalidOperationException("Cannot complete a no-running workflow");
             }
@@ -63,7 +65,7 @@ namespace Foundation.Workflow
 
         public ExecutionResult Obsolete()
         {
-            if (Status != WorkflowStatus.Running)
+            if (Status != WorkflowStatus.Runnable)
             {
                 throw new InvalidOperationException("Cannot obsolete a no-running workflow");
             }
@@ -80,6 +82,16 @@ namespace Foundation.Workflow
         public void SetVariable(string name, object value)
         {
             throw new NotImplementedException();
+        }
+
+        public ExecutionPointer GetCurrentStep()
+        {
+            return ExecutionPointers.SingleOrDefault(x => x.Status == PointerStatus.Running);
+        }
+
+        public ExecutionPointer GetLastStep()
+        {
+            return ExecutionPointers.LastOrDefault();
         }
     }
 

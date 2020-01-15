@@ -10,6 +10,7 @@ namespace Foundation.Workflow
         public int Version { get; set; }
         public string Description { get; set; }
         public List<StepDefinition> Steps { get; set; } = new List<StepDefinition>();
+        public string Id { get; set; }
 
         public string GetNextStepId(string currentStepId)
         {
@@ -21,10 +22,10 @@ namespace Foundation.Workflow
 
     public enum WorkflowStatus
     {
-        Running = 0,
+        Runnable = 0,
         Complete = 1,
         Terminated = 2,
-        Runnable
+        Obsoleted = 3,
     }
 
     public interface IWorkflowDefinitionRegistry
@@ -33,8 +34,10 @@ namespace Foundation.Workflow
 
     public class WorkflowActionEvent
     {
+        public object Attributes { get; set; }
+        
         public Guid ExecutionPointerId { get; set; }
-        public Guid ActorId { get; set; }
+        public Guid? ActorId { get; set; }
         public string Action { get; set; }
         public JObject ActionData { get; set; }
         public Guid WorkflowId { get; set; }
@@ -43,5 +46,6 @@ namespace Foundation.Workflow
         public Guid UserId { get; set; }
         public DateTime EventTime { get; set; }
         public string CurrentStepId { get; set; }
+        
     }
 }

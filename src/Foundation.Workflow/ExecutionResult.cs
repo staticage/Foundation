@@ -6,6 +6,7 @@ namespace Foundation.Workflow
         public string EventName { get; set; }
         public string EventKey { get; set; }
         public string NextStepId { get; set; }
+        public WorkflowStatus WorkflowStatus { get; set; } = WorkflowStatus.Runnable;
 
         public static ExecutionResult Next(string nextStepId = null)
         {
@@ -20,6 +21,14 @@ namespace Foundation.Workflow
             {
                 EventName = eventName,
                 EventKey = eventKey
+            };
+        }
+
+        public static ExecutionResult ObsoleteWorkflow()
+        {
+            return new ExecutionResult
+            {
+                WorkflowStatus = WorkflowStatus.Terminated
             };
         }
     }

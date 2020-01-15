@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Dapper;
-using EFCore.BulkExtensions;
+
 using Example.Applications.Domain;
 using Foundation.Core;
 using Foundation.CustomForm;
 using Foundation.CustomForm.Services;
-using Foundation.Data;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -37,63 +36,63 @@ namespace Example.Applications.Api.Controllers
             return Ok(await _dbContext.FindAsync(entityType, id));
         }
 
-        [HttpPost("api/entity/{name}/_query")]
-        public async Task<IActionResult> Query(string name, [FromBody] JToken jsonBody)
-        {
-            var metadata = _customFormProvider.FindCustomFormMetadata(typeof(Customer).Assembly).Single(x =>
-                x.TypeMetadata.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase));
-            var customForm = _customFormProvider.GetCustomFormSetting(name);
-            var entityType = Type.GetType(metadata.TypeMetadata.AssemblyQualifiedName);
-            var relational = _dbContext.Model.FindEntityType(entityType).Relational();
-            var sql = $"SELECT * FROM \"{relational.TableName}\" WHERE 1=1";
-            var parameters = jsonBody.ToObject<Dictionary<string, object>>();
-            
-            foreach (var key in parameters.Keys.ToList())
-            {
-                var field = customForm.Fields.Single(x => x.Name == key);
-                var property = entityType.GetProperty(key);
-                if (parameters[key]?.ToString().IsNullOrEmpty() ?? true)
-                {
-                    continue;
-                }
-
-                if (parameters[key].GetType() != property)
-                {
-                    parameters[key] = Convert.ChangeType(parameters[key], property.PropertyType);
-                }
-                
-                if (field.QueryOptions?.Type == QueryType.Equals)
-                {
-                    sql += $" AND \"{key}\" = @{key}";
-                }
-                else if (field.QueryOptions?.Type == QueryType.Like)
-                {
-                    sql += $" AND \"{key}\" like @{key}";
-                    parameters[key] = $"%{parameters[key]}%";
-                }
-                
-                
-            }
-
-            var connection = _dbContext.Database.GetDbConnection();
-            if (connection.State != ConnectionState.Open)
-            {
-                connection.Open();
-            }
-            var dynamic = new DynamicParameters();
-            dynamic.AddDynamicParams(parameters);
-            
-            try
-            {
-                var result = await connection.QueryAsync(sql, dynamic);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
+        // [HttpPost("api/entity/{name}/_query")]
+        // public async Task<IActionResult> Query(string name, [FromBody] JToken jsonBody)
+        // {
+        //     var metadata = _customFormProvider.FindCustomFormMetadata(typeof(Customer).Assembly).Single(x =>
+        //         x.TypeMetadata.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase));
+        //     var customForm = _customFormProvider.GetCustomFormSetting(name);
+        //     var entityType = Type.GetType(metadata.TypeMetadata.AssemblyQualifiedName);
+        //     var relational = _dbContext.Model.FindEntityType(entityType).Relational();
+        //     var sql = $"SELECT * FROM \"{relational.TableName}\" WHERE 1=1";
+        //     var parameters = jsonBody.ToObject<Dictionary<string, object>>();
+        //     
+        //     foreach (var key in parameters.Keys.ToList())
+        //     {
+        //         var field = customForm.Fields.Single(x => x.Name == key);
+        //         var property = entityType.GetProperty(key);
+        //         if (parameters[key]?.ToString().IsNullOrEmpty() ?? true)
+        //         {
+        //             continue;
+        //         }
+        //
+        //         if (parameters[key].GetType() != property)
+        //         {
+        //             parameters[key] = Convert.ChangeType(parameters[key], property.PropertyType);
+        //         }
+        //         
+        //         if (field.QueryOptions?.Type == QueryType.Equals)
+        //         {
+        //             sql += $" AND \"{key}\" = @{key}";
+        //         }
+        //         else if (field.QueryOptions?.Type == QueryType.Like)
+        //         {
+        //             sql += $" AND \"{key}\" like @{key}";
+        //             parameters[key] = $"%{parameters[key]}%";
+        //         }
+        //         
+        //         
+        //     }
+        //
+        //     var connection = _dbContext.Database.GetDbConnection();
+        //     if (connection.State != ConnectionState.Open)
+        //     {
+        //         connection.Open();
+        //     }
+        //     var dynamic = new DynamicParameters();
+        //     dynamic.AddDynamicParams(parameters);
+        //     
+        //     try
+        //     {
+        //         var result = await connection.QueryAsync(sql, dynamic);
+        //         return Ok(result);
+        //     }
+        //     catch (Exception e)
+        //     {
+        //         Console.WriteLine(e);
+        //         throw;
+        //     }
+        // }
 
         [HttpPost("api/entity/{name}")]
         public async Task<IActionResult> Post(string name, [FromBody] JToken jsonBody)

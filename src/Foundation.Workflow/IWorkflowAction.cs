@@ -1,3 +1,5 @@
+using WorkflowCore.Interface;
+
 namespace Foundation.Workflow
 {
     public interface IWorkflowAction

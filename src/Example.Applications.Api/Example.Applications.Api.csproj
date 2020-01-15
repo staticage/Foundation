@@ -1,20 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <LangVersion>8</LangVersion>
     </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="Dapper" Version="1.60.6" />
-        <PackageReference Include="EFCore.BulkExtensions" Version="2.5.1" />
-        <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.2.4" />
-    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Example.Applications.Domain\Example.Applications.Domain.csproj" />
       <ProjectReference Include="..\Foundation.CustomForms\Foundation.CustomForms.csproj" />
     </ItemGroup>
+
 
 </Project>
