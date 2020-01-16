@@ -1,0 +1,32 @@
+.edit{
+    position: relative;
+    /*border: 1px solid transparent ;*/
+}
+
+
+
+.mask:hover{
+    
+    border: 1px dashed gray;
+    z-index: 10000;
+}
+.mask:hover .icon{
+    display: block;
+}
+.mask .icon{
+    display: none;
+}
+
+/*.edit:hover:after{*/
+/*    content: attr(data-num);*/
+/*    line-height: 50px;*/
+/*    text-align: center;*/
+/*    width: 20px;*/
+/*    height: 20px;*/
+/*    border-radius: 50%;*/
+/*    background-color: red;*/
+/*    position: relative;*/
+/*    float: right;*/
+/*    top: 0px;*/
+/*    right: 0px;*/
+/*}*/

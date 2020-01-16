@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EfCoreTest", "EfCoreTest\Ef
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebApplicationF", "WebApplicationF\WebApplicationF.fsproj", "{6D41C46F-DEBE-4990-944F-50872B1D84B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Applications.Web", "Example.Applications.Web\Example.Applications.Web.csproj", "{77B8BE92-0D36-43A6-89E5-17B3F78C3664}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,10 +76,15 @@ Global
 		{6D41C46F-DEBE-4990-944F-50872B1D84B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D41C46F-DEBE-4990-944F-50872B1D84B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D41C46F-DEBE-4990-944F-50872B1D84B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77B8BE92-0D36-43A6-89E5-17B3F78C3664}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77B8BE92-0D36-43A6-89E5-17B3F78C3664}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77B8BE92-0D36-43A6-89E5-17B3F78C3664}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77B8BE92-0D36-43A6-89E5-17B3F78C3664}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4BB33D66-B52A-411F-9BD4-0D1B0425E551} = {23B1B6FC-7647-4C83-AB84-A75C8D749F09}
 		{EAB708AA-1BB3-4AE5-B214-8995AC4D3CDD} = {23B1B6FC-7647-4C83-AB84-A75C8D749F09}
 		{101BB7D2-BF79-4E28-8EA4-B14039BF97D5} = {23B1B6FC-7647-4C83-AB84-A75C8D749F09}
+		{77B8BE92-0D36-43A6-89E5-17B3F78C3664} = {23B1B6FC-7647-4C83-AB84-A75C8D749F09}
 	EndGlobalSection
 EndGlobal
