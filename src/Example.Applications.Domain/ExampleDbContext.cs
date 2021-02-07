@@ -5,9 +5,13 @@ namespace Example.Applications.Domain
 {
     public class ExampleDbContext : DbContext
     {
-         public DbSet<Customer> Customers { get; set; }
-         public ExampleDbContext(DbContextOptions<ExampleDbContext> options) : base(options)
-         {
-         }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Article> Articles { get; set; }
+        // public DbSet<Visitor> Visitors { get; set; }
+        public DbSet<ArticleAccessRecord> ArticleAccessRecords { get; set; }
+
+        public ExampleDbContext(DbContextOptions<ExampleDbContext> options) : base(options)
+        {
+        }
     }
 }

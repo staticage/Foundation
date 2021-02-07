@@ -6,6 +6,7 @@ namespace Foundation.CQRS
     public interface ICommandHandler<in TCommand>
         where TCommand : ICommand
     {
+        Task Handle(TCommand command);
     }
 
     public interface IQueryHandler<in TQuery, TQueryResult> where TQuery : IQuery<TQueryResult>

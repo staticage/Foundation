@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using Example.Applications.Api.Common;
 using Example.Applications.Domain;
-using Foundation.CustomForm;
+using Foundation.Messaging;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
+using Microsoft.IdentityModel.Tokens;
+using System.Threading.Tasks;
 
 namespace Example.Applications.Api
 {
@@ -35,14 +33,52 @@ namespace Example.Applications.Api
                     .WithOrigins("http://localhost:8080")
                     .AllowCredentials();
             }));
-            // services.AddCustomForm(x=> x.UseNpgsql("Server=127.0.0.1;Port=5432;Database=custom_form_tests;User Id=postgres;Password=postgres;"));
-            // services.AddDbContext<ExampleDbContext>(options =>
-            //     {
-            //         options.UseNpgsql(
-            //             "Server=127.0.0.1;Port=5432;Database=custom_form_tests;User Id=postgres;Password=postgres;",
-            //             opt => opt.MigrationsAssembly(typeof(Startup).Assembly.FullName));
-            //     }
-            // );
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = "Security.Bearer",
+            ValidAudience = "Security.Bearer",
+            IssuerSigningKey = JwtSecurityKey.Get()
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("User", policy => policy.RequireClaim("UserId"));
+            });
+
+            services.AddServiceBus();
+            services.AddDbContext<ExampleDbContext>(opt =>
+            {
+                opt.UseNpgsql("Server=127.0.0.1;Port=5432;Database=testdb;User Id=postgres;Password=sasa;",
+                    options => options.MigrationsAssembly(typeof(Startup).Assembly.FullName));
+            });
+            var configuration = new MapperConfiguration(cfg =>
+            {
+                // cfg.CreateMap<Foo, FooDto>();
+                // cfg.CreateMap<Bar, BarDto>();
+            });
+            services.AddSingleton<IMapper>(configuration.CreateMapper());
             services.AddHealthChecks();
             services.AddControllers();
         }
@@ -52,9 +88,11 @@ namespace Example.Applications.Api
         {
             app.UseRouting();
             app.UseCors();
+            app.UseAuthentication();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
                 endpoints.MapHealthChecks("/health");
             });
         }
